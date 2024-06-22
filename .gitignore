@@ -1,0 +1,9 @@
+runs
+data/original/*/
+*.cache
+*.jpg
+*.jpeg
+*.txt
+*.webp
+*/.DS_Store
+*.pdf

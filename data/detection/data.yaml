@@ -1,0 +1,5 @@
+train: /Users/dmitrykutsenko/Desktop/tyumen/data/detection/train/images
+val: /Users/dmitrykutsenko/Desktop/tyumen/data/detection/valid/images
+
+nc: 10
+names: ['culture', 'demographics', 'digital economy', 'dorogi', 'ecology', 'education', 'healthcare', 'science_universities', 'tourism', 'urban']
