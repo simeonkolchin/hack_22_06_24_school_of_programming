@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from ml.ml import LogoErrorChecker
 from PIL import Image
 import io
+import os
 
 app = FastAPI()
 
