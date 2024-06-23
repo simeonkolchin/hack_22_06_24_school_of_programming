@@ -5,7 +5,7 @@ class SearchPeople:
         self.model = YOLO(model_path)
     
     def detect(self, image_path):
-        results = self.model(image_path, conf=0.3)
+        results = self.model(image_path, conf=0.1)
         if 0 in results[0].boxes.data[:, 5]:
             return True
         else:
