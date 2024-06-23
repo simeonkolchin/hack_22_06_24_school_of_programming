@@ -1,11 +1,10 @@
-from ml.classification_direction import DirectionClassificator
-from ml.ocr import OCR
-from ml.search_people import SearchPeople
-from ml.logo_detector import LogoDetector
-from ml.classification_crop import CropClassificator
-from easyocr import Reader
-from PIL import Image, ImageDraw
-
+import tempfile
+from app.ml.classification_direction import DirectionClassificator
+from app.ml.ocr import OCR
+from app.ml.search_people import SearchPeople
+from app.ml.logo_detector import LogoDetector
+from app.ml.classification_crop import CropClassificator
+from PIL import Image
 
 class LogoErrorChecker:
     def __init__(self):
@@ -15,41 +14,29 @@ class LogoErrorChecker:
         self.crop_classificatior = CropClassificator()
         self.logo_detector = LogoDetector()
 
-    def check_errors(self, image_path):
+    def check_errors(self, image):
         errors = []
-
-        image = Image.open(image_path).convert('RGB')
-
-        bboxes = self.logo_detector.predict(image_path)
-
+        
+        # Сохраняем изображение во временный файл
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+            image.save(tmp_file, format='PNG')
+            tmp_file_path = tmp_file.name
+        
+        # Используем временный файл для предсказаний
+        bboxes = self.logo_detector.predict(tmp_file_path)
         for bbox in bboxes:
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
             direction_info = self.direction_classificator.predict(cropped_image)
-
-            if direction_info > 0:
+            if direction_info < 0:
                 errors.append('Неправильное направление')
 
-            logo_class = self.crop_classificator.predict(cropped_image)
-            #TODO: если класс является x, проверить цвет
+            logo_class = self.crop_classificatior.predict(cropped_image)
+            # TODO: если класс является x, проверить цвет
 
-
-        if self.people_searcher.detect(image_path):
+        if self.people_searcher.detect(tmp_file_path):
             errors.append('Найден человек на фото')
 
-        ocr_class = self.ocr_model.predict(image_path)
-        # Вот с этим классом потом что нибудь будем делать
-
-        
-        # classification_result = self.classifier.predict(image_path)
-        # if classification_result < 0:
-        #     errors.append("Ошибка отображения: логотип расположен неправильно или имеет деффект с размер")
+        ocr_class = self.ocr_model.predict(tmp_file_path)
+        # Вот с этим классом потом что-нибудь будем делать
 
         return errors
-
-
-if __name__ == "__main__":
-    checker = LogoErrorChecker()
-
-    errors = checker.check_errors('/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/demographics/Примеры некорректного брендирования/9 н.jpg')
-
-    print(errors)
