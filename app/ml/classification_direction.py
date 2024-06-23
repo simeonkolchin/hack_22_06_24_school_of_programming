@@ -4,8 +4,8 @@ from PIL import Image
 import numpy as np
 
 class ImageClassifierONNX:
-    def __init__(self):
-        self.onnx_session = ort.InferenceSession('weights/mobilenet_v2.onnx')
+    def __init__(self, classification_model_path):
+        self.onnx_session = ort.InferenceSession(classification_model_path)
         self.input_name = self.onnx_session.get_inputs()[0].name
         self.output_name = self.onnx_session.get_outputs()[0].name
         self.transform = transforms.Compose([
