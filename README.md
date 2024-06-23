@@ -88,7 +88,7 @@ cd logo-error-checker
 pip install -r requirements.txt
 ```
 
-# Запуск проекта
+## Запуск проекта
 
 Для запуска проекта выполните одну/все команду(ы) из корневой директории:
 
@@ -105,15 +105,15 @@ python app\bot\telegram_bot.py
 streamlit run app/ui/layout.py
 ```
 
-## Использование API
+# Использование API
 
-# Базовый URL
+## Базовый URL
 
 ```arduino
 http://<your_server_ip>:8000
 ```
 
-# Эндпоинты
+## Эндпоинты
 
 Проверка ошибок на изображении
 
@@ -127,7 +127,7 @@ POST /check_errors/
 
 - file: Файл изображения (обязательный параметр).
 
-# Пример запроса:
+## Пример запроса:
 
 ```http
 POST /check_errors/ HTTP/1.1
@@ -137,7 +137,7 @@ Content-Length: <length>
 Content-Disposition: form-data; name="file"; filename="example.jpg"
 ```
 
-# Пример ответа:
+## Пример ответа:
 
 ```json
 {
@@ -150,9 +150,9 @@ Content-Disposition: form-data; name="file"; filename="example.jpg"
 }
 ```
 
-## Примеры использования
+# Примеры использования
 
-# Python
+## Python
 
 ```python
 import requests
@@ -170,13 +170,13 @@ else:
     print("Failed to check errors:", response.status_code)
 ```
 
-# cURL
+## cURL
 
 ```cURL
 curl -X POST "http://<your_server_ip>:8000/check_errors/" -F "file=@path_to_your_image.jpg"
 ```
 
-# JavaScript (Fetch API)
+## JavaScript (Fetch API)
 
 ```javascript
 async function checkErrors(imageFile) {
