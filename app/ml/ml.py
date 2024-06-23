@@ -1,7 +1,7 @@
 from ml.classification_direction import DirectionClassificator
 from ml.ocr import OCR
 from ml.search_people import SearchPeople
-from ml.logo_detector import LogoDetector
+from app.ml.logo_detector import LogoDetector
 from ml.classification_crop import CropClassificator
 from easyocr import Reader
 from PIL import Image, ImageDraw
@@ -19,23 +19,23 @@ class LogoErrorChecker:
         errors = []
 
         image = Image.open(image_path).convert('RGB')
-    
+
         bboxes = self.logo_detector.predict(image_path)
-        
+
         for bbox in bboxes:
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
             direction_info = self.direction_classificator.predict(cropped_image)
-            
+
             if direction_info > 0:
                 errors.append('Неправильное направление')
 
             logo_class = self.crop_classificator.predict(cropped_image)
             #TODO: если класс является x, проверить цвет
-    
+
 
         if self.people_searcher.detect(image_path):
             errors.append('Найден человек на фото')
-        
+
         ocr_class = self.ocr_model.predict(image_path)
         # Вот с этим классом потом что нибудь будем делать
 
