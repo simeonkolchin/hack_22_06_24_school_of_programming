@@ -76,15 +76,3 @@ class OCR:
         else:
             return 'НЕ НАШЛА'
 
-# Пример использования
-if __name__ == "__main__":
-    classifier = OCR()
-    cur_path = '/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/culture/Примеры корректного брендирования'
-
-    for path in os.listdir(cur_path):
-        image_path = os.path.join(cur_path, path)
-        if not os.path.isfile(image_path):
-            continue
-
-        result = classifier.predict(image_path)
-        print(f'{path}: {result}')

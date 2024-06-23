@@ -15,10 +15,7 @@ def main():
         st.write("Classifying...")
 
         # Инициализация класса проверки ошибок
-        checker = LogoErrorChecker(
-            classification_model_path='weights/mobilenet_v2.onnx',
-            yolo_people_model_path='path_to_yolo_people_model.pt'
-        )
+        checker = LogoErrorChecker()
 
         # Предсказание
         error_list = checker.check_errors(uploaded_file)
