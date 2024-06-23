@@ -6,7 +6,7 @@ from torchvision.ops import box_iou
 import torchvision
 
 class LogoDetector:
-    def __init__(self, model_path='weights/logo_detector.pt'):
+    def __init__(self, model_path='app/ml/weights/logo_detector.pt'):
         self.model = YOLO(model_path)
 
     def non_max_suppression(self, bboxes, threshold=0.5):
@@ -33,9 +33,3 @@ class LogoDetector:
         xyxy_bboxes = [(int(x1), int(y1), int(x2), int(y2), float(prob)) for x1, y1, x2, y2, prob in selected_bboxes]
 
         return xyxy_bboxes
-
-if __name__ == "__main__":
-    detector = LogoDetector(model_path='/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/app/ml/weights/logo_detector.pt')
-    image_path = '/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/demographics/Примеры некорректного брендирования/3 н.jpg'
-    bboxes = detector.predict(image_path)
-    print(f'Bounding boxes: {bboxes}')

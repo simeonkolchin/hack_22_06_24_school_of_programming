@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 class SearchPeople:
-    def __init__(self, model_path='weights/search_people.pt'):
+    def __init__(self, model_path='app/ml/weights/search_people.pt'):
         self.model = YOLO(model_path)
     
     def detect(self, image_path):
