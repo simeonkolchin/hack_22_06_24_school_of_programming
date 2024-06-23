@@ -3,7 +3,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 import numpy as np
 
-class CropClassificatorONNX:
+class CropClassificator:
     def __init__(self, model_path='weights/classification_crop.onnx'):
         self.model = ort.InferenceSession(model_path)
 
@@ -40,7 +40,7 @@ class CropClassificatorONNX:
     
 
 if __name__ == "__main__":
-    classifier = CropClassificatorONNX(model_path='weights/classification_crop.onnx')
+    classifier = CropClassificator(model_path='weights/classification_crop.onnx')
 
     image = Image.open('/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/classification_crop/ecology/ekologia1.jpg').convert('RGB')
     prediction = classifier.predict(image)
