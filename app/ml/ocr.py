@@ -5,9 +5,9 @@ import re
 import math
 import Levenshtein
 
-class OCRClassifier:
-    def __init__(self, languages=['ru'], gpu=True):
-        self.reader = easyocr.Reader(languages, gpu=gpu)
+class OCR:
+    def __init__(self, gpu=False):
+        self.reader = easyocr.Reader(['ru'], gpu=gpu)
         self.classes = [
             ['образование'],
             ['демография'],
@@ -78,7 +78,7 @@ class OCRClassifier:
 
 # Пример использования
 if __name__ == "__main__":
-    classifier = OCRClassifier()
+    classifier = OCR()
     cur_path = '/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/culture/Примеры корректного брендирования'
 
     for path in os.listdir(cur_path):
