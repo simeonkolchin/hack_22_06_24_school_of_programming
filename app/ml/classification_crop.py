@@ -30,11 +30,10 @@ class CropClassificator:
         outputs = self.model.run(None, inputs)
         outputs = outputs[0]
 
-        if np.max(outputs) < 5:
+        if np.max(outputs) < 4:
             return 'None'
 
         predicted = np.argmax(outputs, axis=1)
         predicted_class = self.class_names[predicted.item()]
 
         return predicted_class
-    
