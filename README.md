@@ -78,7 +78,7 @@
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/yourusername/logo-error-checker.git
+git clone https://github.com/simeonkolchin/hack_22_06_24_school_of_programming
 cd logo-error-checker
 ```
 
