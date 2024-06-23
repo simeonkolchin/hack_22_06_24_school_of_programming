@@ -21,7 +21,11 @@ class LogoErrorChecker:
         self.logo_detector = LogoDetector(logo_path)
 
     def check_errors(self, image):
-        errors = []
+        result = {
+            'errors': [],
+            'ocr_class': None,
+            'bbox_results': []
+        }
         
         # Сохраняем изображение во временный файл
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
@@ -31,18 +35,27 @@ class LogoErrorChecker:
         # Используем временный файл для предсказаний
         bboxes = self.logo_detector.predict(tmp_file_path)
         for bbox in bboxes:
-            cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-            direction_info = self.direction_classificator.predict(cropped_image)
-            if direction_info < 0:
-                errors.append('Неправильное направление')
+            bbox_result = {
+                'bbox': bbox,
+                'cropped_class': None,
+                'errors': [],
+                'direction_info': None,
+                'ocr_class': None
+            }
 
-            logo_class = self.crop_classificatior.predict(cropped_image)
-            # TODO: если класс является x, проверить цвет
+            cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+
+            result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
+            result['direction_info'] = self.direction_classificator.predict(cropped_image)
+
+            if result['direction_info'] < 0 and result['cropped_class'] != 'dorogi':
+                result['errors'].append('Неправильное направление')
+
+            result['bbox_results'].append(bbox_result)
 
         if self.people_searcher.detect(tmp_file_path):
-            errors.append('Найден человек на фото')
+            result['errors'].append('Найден человек на фото')
 
-        ocr_class = self.ocr_model.predict(tmp_file_path)
-        # Вот с этим классом потом что-нибудь будем делать
+        result['ocr_class'] = self.ocr_model.predict(tmp_file_path)
 
-        return errors
+        return result

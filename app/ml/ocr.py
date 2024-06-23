@@ -61,6 +61,8 @@ class OCR:
             average_dist = sum(distances) / len(distances)
             class_name = ' '.join(class_keywords)
             class_distances[class_name] = average_dist
+
+        #TODO ЕСЛИ ЕСТЬ РАВНЫЕ - ЗАПИСАТЬ ЧЕРЕЗ СЛЕШ
         
         best_class = min(class_distances, key=class_distances.get)
         best_distance = class_distances[best_class]
