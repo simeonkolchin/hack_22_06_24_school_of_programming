@@ -1,5 +1,5 @@
-train: /Users/dmitrykutsenko/Desktop/tyumen/data/detection/train/images
-val: /Users/dmitrykutsenko/Desktop/tyumen/data/detection/valid/images
+train: /home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/detection/train/images
+val: /home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/detection/valid/images
 
-nc: 10
-names: ['culture', 'demographics', 'digital economy', 'dorogi', 'ecology', 'education', 'healthcare', 'science_universities', 'tourism', 'urban']
+nc: 13
+names: ['culture', 'demographics', 'digital economy', 'dorogi', 'ecology', 'education', 'entrepreneurship', 'healthcare', 'international-cooperation-and-export', 'science_universities', 'tourism', 'urban', 'work-productivity']
