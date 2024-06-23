@@ -24,6 +24,7 @@ class DirectionClassificator:
         output = outputs[0][0][0]
         return output
 
+
 if __name__ == "__main__":
     classifier = DirectionClassificator(classification_model_path='weights/classification_direction.onnx')
 

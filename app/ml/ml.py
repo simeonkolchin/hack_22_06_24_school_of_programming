@@ -12,7 +12,7 @@ class LogoErrorChecker:
         self.direction_classificator = DirectionClassificator()
         self.ocr_model = OCR()
         self.people_searcher = SearchPeople()
-        # self.crop_classificatior = CropClassificator()
+        self.crop_classificatior = CropClassificator()
         self.logo_detector = LogoDetector()
 
     def check_errors(self, image_path):
@@ -24,16 +24,17 @@ class LogoErrorChecker:
         
         for bbox in bboxes:
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-            # logo_class = self.crop_classificator.predict(cropped_image)
             direction_info = self.direction_classificator.predict(cropped_image)
             
-            if direction_info > 0.5:
+            if direction_info > 0:
                 errors.append('Неправильное направление')
+
+            logo_class = self.crop_classificator.predict(cropped_image)
+            #TODO: если класс является x, проверить цвет
     
 
         if self.people_searcher.detect(image_path):
             errors.append('Найден человек на фото')
-
         
         ocr_class = self.ocr_model.predict(image_path)
         # Вот с этим классом потом что нибудь будем делать
