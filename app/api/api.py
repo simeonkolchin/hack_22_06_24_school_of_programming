@@ -7,10 +7,7 @@ import os
 app = FastAPI()
 
 # Инициализация класса проверки ошибок
-checker = LogoErrorChecker(
-    classification_model_path='path_to_classification_model.onnx',
-    yolo_people_model_path='path_to_yolo_people_model.pt'
-)
+checker = LogoErrorChecker()
 
 @app.post("/check_errors/")
 async def check_errors(file: UploadFile = File(...)):
