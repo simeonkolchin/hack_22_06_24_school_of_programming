@@ -1,10 +1,17 @@
 from ml.classification_direction import ImageClassifierONNX
-from ml.search_people import YOLOv8Inference
+from ml.ocr import OCRModel
+from ml.search_people import PeopleSearcher
+from app.ml.logo_detector import YoloModel
+from ml.classification_crop import CropClassificator
+from easyocr import Reader
 
 class LogoErrorChecker:
-    def __init__(self, classification_model_path, yolo_people_model_path):
-        self.classifier = ImageClassifierONNX(classification_model_path)
-        self.people_detector = YOLOv8Inference(yolo_people_model_path)
+    def __init__(self, yolo_model_path):
+        self.classifier = ImageClassifierONNX()
+        self.ocr_model = Reader(['ru'], gpu=True)
+        self.people_searcher = PeopleSearcher()
+        self.crop_classificatior = CropClassificator()
+        self.yolo_model = YoloModel(yolo_model_path)
 
     def check_errors(self, image_path):
         errors = []
