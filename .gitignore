@@ -12,3 +12,4 @@ data/original/*/
 *.pth
 app/ml/weights/mobilenet_v2.onnx
 train/classification_direction/mobilenet_v2.onnx
+train/classification_crop/classification_crop.onnx
