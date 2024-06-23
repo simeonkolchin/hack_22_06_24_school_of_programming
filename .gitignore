@@ -8,5 +8,6 @@ data/original/*/
 */.DS_Store
 *.pdf
 *.pt
+*.pyc
 app/ml/weights/mobilenet_v2.onnx
 train/classification_direction/mobilenet_v2.onnx
