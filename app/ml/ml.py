@@ -7,12 +7,18 @@ from app.ml.classification_crop import CropClassificator
 from PIL import Image
 
 class LogoErrorChecker:
-    def __init__(self):
-        self.direction_classificator = DirectionClassificator()
+    def __init__(self,
+            direction_path='app/ml/weights/classification_direction.onnx',
+            people_path='app/ml/weights/search_people.pt',
+            crop_path='app/ml/weights/classification_crop.onnx',
+            logo_path='app/ml/weights/logo_detector.pt'
+        ):
+
+        self.direction_classificator = DirectionClassificator(direction_path)
         self.ocr_model = OCR()
-        self.people_searcher = SearchPeople()
-        self.crop_classificatior = CropClassificator()
-        self.logo_detector = LogoDetector()
+        self.people_searcher = SearchPeople(people_path)
+        self.crop_classificatior = CropClassificator(crop_path)
+        self.logo_detector = LogoDetector(logo_path)
 
     def check_errors(self, image):
         errors = []
