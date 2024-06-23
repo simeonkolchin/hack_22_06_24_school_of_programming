@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 from utils.utils import preprocess_image
-
+from ml.classification_direction import ImageClassifierONNX
 
 def render_layout(models):
     st.title("Image Prediction App")
