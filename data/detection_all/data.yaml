@@ -1,0 +1,5 @@
+train: /home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/detection_all/train/images
+val: /home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/detection_all/valid/images
+
+nc: 1
+names: ['all_classes']

@@ -7,3 +7,4 @@ data/original/*/
 *.webp
 */.DS_Store
 *.pdf
+*.pt
