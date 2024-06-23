@@ -1,11 +1,10 @@
-runs
 data/original/*/
 *.cache
 *.jpg
 *.jpeg
 *.txt
 *.webp
-*/.DS_Store
+*DS_Store
 *.pdf
 *.pt
 *.pyc
@@ -16,3 +15,7 @@ app/ml/weights/mobilenet_v2.onnx
 train/classification_direction/mobilenet_v2.onnx
 train/classification_crop/classification_crop.onnx
 app/ml/weights/classification_crop.onnx
+*.onnx
+*.png
+*__pycache__*
+*runs*

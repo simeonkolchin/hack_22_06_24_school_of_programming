@@ -6,9 +6,6 @@ import numpy as np
 class DirectionClassificator:
     def __init__(self, classification_model_path='app/ml/weights/classification_direction.onnx'):
 
-        import os
-        print(os.path.exists(classification_model_path))
-
         self.onnx_session = ort.InferenceSession(classification_model_path)
         self.input_name = self.onnx_session.get_inputs()[0].name
         self.output_name = self.onnx_session.get_outputs()[0].name
@@ -23,8 +20,3 @@ class DirectionClassificator:
         outputs = self.onnx_session.run([self.output_name], {self.input_name: image})
         output = outputs[0][0][0]
         return output
-
-
-if __name__ == "__main__":
-    classifier = DirectionClassificator(classification_model_path='weights/classification_direction.onnx')
-
