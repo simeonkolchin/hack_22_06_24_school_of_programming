@@ -1,13 +1,26 @@
+import tracemalloc
+import sys
 import os
+import asyncio
+import tempfile
 from aiogram import Bot, Dispatcher, types, Router
 from aiogram.types import Message, ContentType
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import CommandStart
 from aiogram import F
 
-from ml.ml import LogoErrorChecker
+# Включаем tracemalloc для отслеживания распределения памяти
+tracemalloc.start()
+
+# Добавляем корневую директорию в системный путь
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
+sys.path.append(project_root)
+
+from app.ml.ml import LogoErrorChecker
 from PIL import Image
 import io
+
 
 API_TOKEN = '7207561115:AAEMfuR0dRTIfQT3jxLk_yGxskAqMBEBaJQ'
 
@@ -29,14 +42,20 @@ async def handle_image(message: Message):
     photo = message.photo[-1]
     photo_file = await bot.get_file(photo.file_id)
     photo_bytes = await bot.download_file(photo_file.file_path)
-    
-    image = Image.open(io.BytesIO(photo_bytes)).convert('RGB')
-    image.save("temp.jpg")
+
+    # Преобразуем байты в изображение
+    image = Image.open(io.BytesIO(photo_bytes.read())).convert('RGB')
+
+    # Сохраняем изображение во временный файл
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+        image.save(tmp_file, format='PNG')
+        tmp_file_path = tmp_file.name
 
     # Предсказание
-    error_list = checker.check_errors("temp.jpg")
-    os.remove("temp.jpg")
+    error_list = checker.check_errors(image)
     
+    os.remove(tmp_file_path)
+
     if error_list:
         response = "Detected errors:\n" + "\n".join(error_list)
     else:
@@ -44,9 +63,11 @@ async def handle_image(message: Message):
     
     await message.answer(response)
 
-def run_bot():
+async def run_bot():
     dp.include_router(router)
-    dp.start_polling(bot, skip_updates=True)
+    await dp.start_polling(bot, skip_updates=True)
 
 if __name__ == "__main__":
-    run_bot()
+    asyncio.run(run_bot())
+
+
