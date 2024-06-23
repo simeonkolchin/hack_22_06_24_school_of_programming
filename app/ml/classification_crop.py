@@ -8,7 +8,7 @@ class CropClassificatorONNX:
         self.model = ort.InferenceSession(model_path)
 
         self.transform = transforms.Compose([
-            transforms.Resize(224),
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         ])
@@ -40,7 +40,7 @@ class CropClassificatorONNX:
     
 
 if __name__ == "__main__":
-    classifier = CropClassificatorONNX(model_path='classification_crop.onnx')
+    classifier = CropClassificatorONNX(model_path='weights/classification_crop.onnx')
 
     image = Image.open('/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/classification_crop/ecology/ekologia1.jpg').convert('RGB')
     prediction = classifier.predict(image)
