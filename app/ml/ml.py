@@ -1,27 +1,48 @@
-from ml.classification_direction import ImageClassifierONNX
+from ml.classification_direction import DirectionClassificator
 from ml.ocr import OCRModel
-from ml.search_people import PeopleSearcher
-from app.ml.logo_detector import YoloModel
+from ml.search_people import SearchPeople
+from app.ml.logo_detector import LogoDetector
 from ml.classification_crop import CropClassificator
 from easyocr import Reader
+from PIL import Image, ImageDraw
+
 
 class LogoErrorChecker:
-    def __init__(self, yolo_model_path):
-        self.classifier = ImageClassifierONNX()
-        self.ocr_model = Reader(['ru'], gpu=True)
-        self.people_searcher = PeopleSearcher()
-        self.crop_classificatior = CropClassificator()
-        self.yolo_model = YoloModel(yolo_model_path)
+    def __init__(self):
+        self.direction_classificator = DirectionClassificator()
+        # self.ocr_model = Reader(['ru'], gpu=True)
+        self.people_searcher = SearchPeople()
+        # self.crop_classificatior = CropClassificator()
+        self.logo_detector = LogoDetector()
 
     def check_errors(self, image_path):
         errors = []
+
+        image = Image.open(image_path).convert('RGB')
+    
+        bboxes = self.logo_detector.predict(image_path)
         
-        classification_result = self.classifier.predict(image_path)
-        if classification_result < 0:
-            errors.append("Ошибка отображения: логотип расположен неправильно или имеет деффект с размер")
+        for bbox in bboxes:
+            cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+            # logo_class = self.crop_classificator.predict(cropped_image)
+            direction_info = self.direction_classificator.predict(cropped_image)
+            
+            if direction_info > 0.5:
+                errors.append('Неправильное направление')
+    
+
+        if self.people_searcher.detect(image_path):
+            errors.append('Найден человек на фото')
+
         
-        # YOLO для людей -------------------
-        if not self.people_detector.detect_person(image_path):
-            errors.append("Person detection error: no persons detected.")
+        # classification_result = self.classifier.predict(image_path)
+        # if classification_result < 0:
+        #     errors.append("Ошибка отображения: логотип расположен неправильно или имеет деффект с размер")
 
         return errors
+
+
+if __name__ == "__main__":
+    checker = LogoErrorChecker()
+
+    errors = checker.check_errors('/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/demographics/Примеры некорректного брендирования/9 н.jpg')

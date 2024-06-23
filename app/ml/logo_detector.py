@@ -5,8 +5,8 @@ import numpy as np
 from torchvision.ops import box_iou
 import torchvision
 
-class YOLOv8Detector:
-    def __init__(self, model_path='yolov8n.pt'):
+class LogoDetector:
+    def __init__(self, model_path='weights/logo_detector.pt'):
         self.model = YOLO(model_path)
 
     def non_max_suppression(self, bboxes, threshold=0.5):
@@ -35,8 +35,7 @@ class YOLOv8Detector:
         return xyxy_bboxes
 
 if __name__ == "__main__":
-    detector = YOLOv8Detector(model_path='/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/app/ml/weights/logo_detector.pt')
+    detector = LogoDetector(model_path='/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/app/ml/weights/logo_detector.pt')
     image_path = '/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/original/demographics/Примеры некорректного брендирования/3 н.jpg'
     bboxes = detector.predict(image_path)
     print(f'Bounding boxes: {bboxes}')
-
