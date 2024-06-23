@@ -14,6 +14,15 @@ class LogoErrorChecker:
             logo_path='app/ml/weights/logo_detector.pt'
         ):
 
+        """
+        Инициализирует класс LogoErrorChecker с путями к весам моделей.
+        
+        :param direction_path: Путь к весам модели классификации направлений логотипов.
+        :param people_path: Путь к весам модели поиска людей.
+        :param crop_path: Путь к весам модели классификации обрезанных изображений.
+        :param logo_path: Путь к весам модели детекции логотипов.
+        """
+
         self.direction_classificator = DirectionClassificator(direction_path)
         self.ocr_model = OCR()
         self.people_searcher = SearchPeople(people_path)
@@ -21,6 +30,26 @@ class LogoErrorChecker:
         self.logo_detector = LogoDetector(logo_path)
 
     def check_errors(self, image):
+        
+        """
+        Проверяет изображение на наличие ошибок, связанных с логотипами.
+        
+        :param image: Изображение, которое необходимо проверить.
+        :return: Словарь с результатами проверки.
+        
+        Результат:
+        - errors (list): Список общих ошибок, найденных на изображении.
+        - ocr_class (str): Общий класс, определённый по всему изображению с помощью OCR.
+        - bbox_results (list): Список результатов обработки для каждого найденного логотипа.
+        
+        bbox_results:
+        - bbox (tuple): Координаты bounding box (bbox) логотипа.
+        - cropped_class (str): Название класса, полученное при обработке обрезанного изображения нейросетью.
+        - errors (list): Ошибки, связанные с текущим логотипом.
+        - ocr_class (str): Класс логотипа, определённый по буквам на логотипе.
+        - color_class (str): Класс логотипа, определённый по цвету.
+        """
+
         result = {
             'errors': [],
             'ocr_class': None,
@@ -39,17 +68,18 @@ class LogoErrorChecker:
                 'bbox': bbox,
                 'cropped_class': None,
                 'errors': [],
-                'direction_info': None,
-                'ocr_class': None
+                'ocr_class': None,
+                'color_class': None
             }
 
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
 
-            result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
-            result['direction_info'] = self.direction_classificator.predict(cropped_image)
+            bbox_result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
 
-            if result['direction_info'] < 0 and result['cropped_class'] != 'dorogi':
-                result['errors'].append('Неправильное направление')
+            if self.direction_classificator.predict(cropped_image) < 0 and result['cropped_class'] != 'dorogi':
+                bbox_result['errors'].append('Неправильное направление')
+
+            #TODO: добавить проверку цвета
 
             result['bbox_results'].append(bbox_result)
 
