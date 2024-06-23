@@ -1,7 +1,7 @@
 from ml.classification_direction import DirectionClassificator
 from ml.ocr import OCR
 from ml.search_people import SearchPeople
-from app.ml.logo_detector import LogoDetector
+from ml.logo_detector import LogoDetector
 from ml.classification_crop import CropClassificator
 from easyocr import Reader
 from PIL import Image, ImageDraw

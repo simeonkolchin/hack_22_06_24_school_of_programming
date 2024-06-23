@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 class DirectionClassificator:
-    def __init__(self, classification_model_path='weights/classification_direction.onnx'):
+    def __init__(self, classification_model_path='app/ml/weights/classification_direction.onnx'):
 
         import os
         print(os.path.exists(classification_model_path))
@@ -24,12 +24,4 @@ class DirectionClassificator:
         output = outputs[0][0][0]
         return output
 
-if __name__ == "__main__":
-    classifier = DirectionClassificator(classification_model_path='weights/classification_direction.onnx')
 
-    image_path = '/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/classification_crop/ecology/ekologia15.jpg'
-    image = Image.open(image_path).convert('RGB')
-    
-    prediction = classifier.predict(image)
-
-    print(f'Predicted class: {prediction}')

@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 class CropClassificator:
-    def __init__(self, model_path='weights/classification_crop.onnx'):
+    def __init__(self, model_path='app/ml/weights/classification_crop.onnx'):
         self.model = ort.InferenceSession(model_path)
 
         self.transform = transforms.Compose([
@@ -38,11 +38,3 @@ class CropClassificator:
 
         return predicted_class
     
-
-if __name__ == "__main__":
-    classifier = CropClassificator(model_path='weights/classification_crop.onnx')
-
-    image = Image.open('/home/dmitrii/Desktop/hack_22_06_24_school_of_programming/data/classification_crop/ecology/ekologia1.jpg').convert('RGB')
-    prediction = classifier.predict(image)
-
-    print(f'Predicted class: {prediction}')

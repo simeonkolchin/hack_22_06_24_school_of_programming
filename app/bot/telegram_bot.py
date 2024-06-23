@@ -18,10 +18,7 @@ dp = Dispatcher(storage=storage)
 router = Router()
 
 # Инициализация класса проверки ошибок
-checker = LogoErrorChecker(
-    classification_model_path='..\ml\weights\mobilenet_v2.onnx',
-    yolo_people_model_path='path_to_yolo_people_model.pt'
-)
+checker = LogoErrorChecker()
 
 @router.message(CommandStart())
 async def send_welcome(message: Message):
