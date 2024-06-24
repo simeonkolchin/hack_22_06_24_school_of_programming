@@ -43,6 +43,10 @@ async def handle_image(message: Message):
 
     result = checker.check_errors(image)
 
+    if not result['bbox_results']:
+        await message.answer("Логотипы на изображении не распознаны.")
+        return
+
     draw = ImageDraw.Draw(image)
     for bbox_result in result['bbox_results']:
         bbox = bbox_result['bbox']
@@ -58,9 +62,9 @@ async def handle_image(message: Message):
     for idx, bbox_result in enumerate(result['bbox_results']):
         caption += f"<b>Логотип {idx + 1}:</b>\n"
         caption += f"  - <b>Координаты:</b> {bbox_result['bbox']}\n"
-        caption += f"  - <b>Класс:</b> {bbox_result['cropped_class']}\n"
-        caption += f"  - <b>Ошибки:</b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Нет'}\n"
-        caption += f"  - <b>OCR:</b> {bbox_result['ocr_class']}\n"
+        caption += f"  - <b>Класс:</b> {'Определить не удалось' if bbox_result['cropped_class'] == 'None' else bbox_result['cropped_class']}\n"
+        caption += f"  - <b>Ошибки:</b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Не найдено'}\n"
+        caption += f"  - <b>Люди на фото:</b> {'Не найдено' if bbox_result['ocr_class'] is None else 'Найдено'}\n"
         caption += f"  - <b>Цвет:</b> {', '.join(bbox_result['color_class'])}\n\n"
     caption += f"<b>OCR класс для всего изображения:</b> {result['ocr_class']}"
 
