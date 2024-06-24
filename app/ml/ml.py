@@ -71,10 +71,16 @@ class LogoErrorChecker:
                 'cropped_class': None,
                 'errors': [],
                 'ocr_class': None,
-                'color_class': [] # Список из строк
+                'color_class': []
             }
 
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_small_file:
+                image.save(tmp_small_file, format='PNG')
+                tmp_small_file_path = tmp_small_file.name
+            
+            result['ocr_class'] = self.ocr_model.predict(tmp_small_file_path, threshold=0.34)
 
             bbox_result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
 

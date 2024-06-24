@@ -63,6 +63,7 @@ class OCR:
             class_distances[class_name] = average_dist
 
         #TODO ЕСЛИ ЕСТЬ РАВНЫЕ - ЗАПИСАТЬ ЧЕРЕЗ СЛЕШ
+        #TODO есть пиркол что в urban_env есть "благоустройство общественной территории.. и тд тп, разные штуки"
         
         best_class = min(class_distances, key=class_distances.get)
         best_distance = class_distances[best_class]
