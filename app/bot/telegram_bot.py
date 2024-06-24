@@ -46,7 +46,6 @@ async def handle_image(message: Message):
     draw = ImageDraw.Draw(image)
     for bbox_result in result['bbox_results']:
         bbox = bbox_result['bbox']
-        print(f"Drawing rectangle with coordinates: {bbox}")
         if isinstance(bbox, (list, tuple)) and len(bbox) >= 4:
             bbox = tuple(map(int, bbox[:4]))
             draw.rectangle(bbox, outline="red", width=2)
@@ -55,17 +54,21 @@ async def handle_image(message: Message):
         image.save(tmp_file, format='PNG')
         tmp_file_path = tmp_file.name
 
-    caption = "Распознанные ошибки:\n" + "\n".join(result['errors']) + "\n\n"
+    caption = "<b>Распознанные ошибки:</b>\n"
     for idx, bbox_result in enumerate(result['bbox_results']):
-        caption += f"Логотип {idx + 1}:\n"
-        caption += f"  BBox: {bbox_result['bbox']}\n"
-        caption += f"  Класс: {bbox_result['cropped_class']}\n"
-        caption += f"  Ошибки: {', '.join(bbox_result['errors'])}\n"
-        caption += f"  OCR: {bbox_result['ocr_class']}\n"
-        caption += f"  Цвет: {bbox_result['color_class']}\n"
-        caption += "\n"
-    caption += f"OCR класс для всего изображения: {result['ocr_class']}"
-    await message.answer_photo(FSInputFile(tmp_file_path), caption=caption)
+        caption += f"\n<b>Логотип #{idx + 1}:</b>\n"
+        caption += f"  - <b>Координаты:</b> {bbox_result['bbox']}\n"
+        caption += f"  - <b>Класс:</b> {bbox_result['cropped_class']}\n"
+        if bbox_result['errors']:
+            errors = ', '.join(bbox_result['errors']).replace('_', '\\_')
+        else:
+            errors = 'Нет'
+        caption += f"  - <b>Ошибки:</b> {errors}\n"
+        caption += f"  - <b>OCR:</b> {bbox_result['ocr_class']}\n"
+        caption += f"  - <b>Цвет:</b> {bbox_result['color_class']}\n"
+    caption += f"\n<b>OCR класс для всего изображения:</b> {result['ocr_class']}"
+
+    await message.answer_photo(FSInputFile(tmp_file_path), caption=caption, parse_mode='HTML')
 
     os.remove(tmp_file_path)
 
