@@ -46,9 +46,6 @@ def main():
         1. Загрузите изображение, которое хотите проверить.
         2. Нажмите кнопку "Классифицировать".
         3. Получите результаты и проверьте изображение на наличие ошибок.
-                        
-        ### Telegram Bot
-        Вы также можете использовать нашего Telegram-бота для проверки изображений. [Перейти к боту](https://t.me/logo_checker_hack_bot)
         
         ### Подключение API
         Вы можете использовать наш API для интеграции с другими проектами. Ниже приведен пример использования API.
@@ -61,6 +58,9 @@ def main():
         response = requests.post(url, files=files)
         print(response.json())
         ```
+
+        ### Telegram Bot
+        Вы также можете использовать нашего Telegram-бота для проверки изображений. [Перейти к боту](https://t.me/logo_checker_hack_bot)
     """)
 
     # Основной интерфейс
@@ -89,7 +89,7 @@ def main():
             image.save(tmp_file, format='PNG')
             tmp_file_path = tmp_file.name
 
-        st.image(image, caption='Изображение с отмеченными логотипами.', use_column_width=False, width=300)
+        st.image(image, caption='Изображение с отмеченными логотипами.', use_column_width=False, width=600)
 
         caption = "### Распознанные ошибки:\n"
         for idx, bbox_result in enumerate(result['bbox_results']):
@@ -98,7 +98,7 @@ def main():
             caption += f"- **Класс:** {bbox_result['cropped_class']}\n"
             caption += f"- **Ошибки:** {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Нет'}\n"
             caption += f"- **OCR:** {bbox_result['ocr_class']}\n"
-            caption += f"- **Цвет:** {bbox_result['color_class']}\n\n"
+            caption += f"- **Цвет:** {', '.join(bbox_result['color_class'])}\n\n"
         caption += f"**OCR класс для всего изображения:** {result['ocr_class']}"
 
         st.markdown(caption)

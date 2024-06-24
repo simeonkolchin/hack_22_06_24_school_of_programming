@@ -56,19 +56,15 @@ async def handle_image(message: Message):
 
     caption = "<b>Распознанные ошибки:</b>\n"
     for idx, bbox_result in enumerate(result['bbox_results']):
-        caption += f"\n<b>Логотип #{idx + 1}:</b>\n"
+        caption += f"<b>Логотип {idx + 1}:</b>\n"
         caption += f"  - <b>Координаты:</b> {bbox_result['bbox']}\n"
         caption += f"  - <b>Класс:</b> {bbox_result['cropped_class']}\n"
-        if bbox_result['errors']:
-            errors = ', '.join(bbox_result['errors']).replace('_', '\\_')
-        else:
-            errors = 'Нет'
-        caption += f"  - <b>Ошибки:</b> {errors}\n"
+        caption += f"  - <b>Ошибки:</b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Нет'}\n"
         caption += f"  - <b>OCR:</b> {bbox_result['ocr_class']}\n"
-        caption += f"  - <b>Цвет:</b> {bbox_result['color_class']}\n"
-    caption += f"\n<b>OCR класс для всего изображения:</b> {result['ocr_class']}"
+        caption += f"  - <b>Цвет:</b> {', '.join(bbox_result['color_class'])}\n\n"
+    caption += f"<b>OCR класс для всего изображения:</b> {result['ocr_class']}"
 
-    await message.answer_photo(FSInputFile(tmp_file_path), caption=caption, parse_mode='HTML')
+    await message.answer_photo(FSInputFile(tmp_file_path), caption=caption, parse_mode="HTML")
 
     os.remove(tmp_file_path)
 
