@@ -76,7 +76,7 @@ class LogoErrorChecker:
 
             bbox_result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
 
-            if self.direction_classificator.predict(cropped_image) < 0 and result['cropped_class'] != 'dorogi':
+            if self.direction_classificator.predict(cropped_image) < 0 and bbox_result['cropped_class'] != 'dorogi':
                 bbox_result['errors'].append('Неправильное направление')
 
             #TODO: добавить проверку цвета
