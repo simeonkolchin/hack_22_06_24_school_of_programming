@@ -88,7 +88,7 @@ class LogoErrorChecker:
             bbox_result['color_class'] = [str(k) + ' ' + str(v) + '%' for k, v in top_5_color_classes]
 
             if self.direction_classificator.predict(cropped_image) < 0 and bbox_result['cropped_class'] != 'dorogi':
-                bbox_result['errors'].append('Неправильное направление')
+                bbox_result['errors'].append('Неправильное направление или присутствуют другие искажения логотипа (искажение луча, неправильная форма логотипа и прочее)')
 
             #TODO: добавить проверку цвета
 
