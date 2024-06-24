@@ -1,9 +1,10 @@
 import tempfile
 from app.ml.classification_direction import DirectionClassificator
+from app.ml.classification_crop import CropClassificator
 from app.ml.ocr import OCR
 from app.ml.search_people import SearchPeople
 from app.ml.logo_detector import LogoDetector
-from app.ml.classification_crop import CropClassificator
+from app.ml.color_checker import ColorChecker
 from PIL import Image
 
 class LogoErrorChecker:
@@ -28,6 +29,7 @@ class LogoErrorChecker:
         self.people_searcher = SearchPeople(people_path)
         self.crop_classificatior = CropClassificator(crop_path)
         self.logo_detector = LogoDetector(logo_path)
+        self.color_checker = ColorChecker()
 
     def check_errors(self, image):
         
@@ -69,12 +71,15 @@ class LogoErrorChecker:
                 'cropped_class': None,
                 'errors': [],
                 'ocr_class': None,
-                'color_class': None
+                'color_class': [] # Список из строк
             }
 
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
 
             bbox_result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
+
+            top_5_color_classes = self.color_checker.run(cropped_image)
+            bbox_result['color_class'] = [str(k) + ' ' + str(v) + '%' for k, v in top_5_color_classes]
 
             if self.direction_classificator.predict(cropped_image) < 0 and bbox_result['cropped_class'] != 'dorogi':
                 bbox_result['errors'].append('Неправильное направление')
