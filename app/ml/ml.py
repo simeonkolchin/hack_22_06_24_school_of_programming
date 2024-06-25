@@ -5,7 +5,6 @@ from app.ml.ocr import OCR
 from app.ml.search_people import SearchPeople
 from app.ml.logo_detector import LogoDetector
 from app.ml.color_checker import ColorChecker
-from PIL import Image
 
 class LogoErrorChecker:
     def __init__(self,
