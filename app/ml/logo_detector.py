@@ -58,13 +58,14 @@ class LogoDetector:
         """
 
         image = cv2.imread(image_path)
+        height, width, _ = image.shape
         results = self.model(image, verbose=False, conf=conf_threshold)
-        
-        bboxes = []
-        for x1, y1, x2, y2, prob, _ in results[0].boxes.data.cpu().numpy():
-            bboxes.append([x1, y1, x2, y2, prob])
-        
+
+        boxes_data = results[0].boxes.data.cpu().numpy()
+        bboxes = boxes_data[:, :5].tolist()
+
         selected_bboxes = self.non_max_suppression(bboxes, iou_threshold)
         xyxy_bboxes = [(int(x1), int(y1), int(x2), int(y2), float(prob)) for x1, y1, x2, y2, prob in selected_bboxes]
+        norm_bboxes = [(x1 / width, y1 / height, x2 / width, y2 / height) for x1, y1, x2, y2, _ in selected_bboxes]
 
-        return xyxy_bboxes
+        return xyxy_bboxes, norm_bboxes
