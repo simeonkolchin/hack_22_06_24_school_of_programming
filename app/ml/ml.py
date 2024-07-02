@@ -1,6 +1,7 @@
 import tempfile
 from app.ml.classification_direction import DirectionClassificator
 from app.ml.classification_crop import CropClassificator
+from app.ml.classification_check_good import CheckClassificator
 from app.ml.ocr import OCR
 from app.ml.search_people import SearchPeople
 from app.ml.logo_detector import LogoDetector
@@ -11,7 +12,8 @@ class LogoErrorChecker:
             direction_path='app/ml/weights/classification_direction.onnx',
             people_path='app/ml/weights/search_people.pt',
             crop_path='app/ml/weights/classification_crop.onnx',
-            logo_path='app/ml/weights/logo_detector.pt'
+            logo_path='app/ml/weights/logo_detector.pt',
+            check_path='app/ml/weights/classification_check_good.onnx'
         ):
 
         """
@@ -26,9 +28,10 @@ class LogoErrorChecker:
         self.direction_classificator = DirectionClassificator(direction_path)
         self.ocr_model = OCR()
         self.people_searcher = SearchPeople(people_path)
-        self.crop_classificatior = CropClassificator(crop_path)
+        self.crop_classificator = CropClassificator(crop_path)
         self.logo_detector = LogoDetector(logo_path)
         self.color_checker = ColorChecker()
+        self.check_classificator = CheckClassificator(check_path)
 
     def check_errors(self, image):
         
@@ -61,10 +64,13 @@ class LogoErrorChecker:
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
             image.save(tmp_file, format='PNG')
             tmp_file_path = tmp_file.name
+
+        if not bboxes:
+            result['errors'].append('логотипы не найдены')
         
         # Используем временный файл для предсказаний
-        bboxes = self.logo_detector.predict(tmp_file_path)
-        for bbox in bboxes:
+        bboxes, norm_bboxes = self.logo_detector.predict(tmp_file_path)
+        for bbox, norm_bboxes in zip(bboxes, norm_bboxes):
             bbox_result = {
                 'bbox': bbox,
                 'cropped_class': None,
@@ -73,15 +79,26 @@ class LogoErrorChecker:
                 'color_class': []
             }
 
+            bbox_width = norm_bboxes[2] - norm_bboxes[0]
+            bbox_height = norm_bboxes[3] - norm_bboxes[1]
+            bbox_area = bbox_width * bbox_height
+
+            if bbox_area < 0.04:
+                bbox_result['errors'].append('логотип находится слишком далеко / он слишком маленький')
+
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
 
             with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_small_file:
-                image.save(tmp_small_file, format='PNG')
+                cropped_image.save(tmp_small_file, format='PNG')
                 tmp_small_file_path = tmp_small_file.name
-            
+
             result['ocr_class'] = self.ocr_model.predict(tmp_small_file_path, threshold=0.34)
 
-            bbox_result['cropped_class'] = self.crop_classificatior.predict(cropped_image)
+            bbox_result['cropped_class'] = self.crop_classificator.predict(cropped_image)
+
+            good_bbox = self.check_classificator.predict(cropped_image)
+            if not good_bbox:
+                bbox_result['errors'] = 'Некорректный логотип'
 
             top_5_color_classes = self.color_checker.run(cropped_image)
             bbox_result['color_class'] = [str(k) + ' ' + str(v) + '%' for k, v in top_5_color_classes]
