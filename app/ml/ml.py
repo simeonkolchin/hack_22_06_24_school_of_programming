@@ -65,11 +65,14 @@ class LogoErrorChecker:
             image.save(tmp_file, format='PNG')
             tmp_file_path = tmp_file.name
 
-        if not bboxes:
-            result['errors'].append('логотипы не найдены')
+        
         
         # Используем временный файл для предсказаний
         bboxes, norm_bboxes = self.logo_detector.predict(tmp_file_path)
+
+        if not bboxes:
+            result['errors'].append('логотипы не найдены')
+
         for bbox, norm_bboxes in zip(bboxes, norm_bboxes):
             bbox_result = {
                 'bbox': bbox,
@@ -83,8 +86,9 @@ class LogoErrorChecker:
             bbox_height = norm_bboxes[3] - norm_bboxes[1]
             bbox_area = bbox_width * bbox_height
 
-            if bbox_area < 0.04:
-                bbox_result['errors'].append('логотип находится слишком далеко / он слишком маленький')
+            print(bbox_area)
+            if bbox_area < 0.01:
+                bbox_result['errors'].append('Логотип находится слишком далеко / он слишком маленький')
 
             cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
 

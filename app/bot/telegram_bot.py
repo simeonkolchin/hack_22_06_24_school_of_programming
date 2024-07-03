@@ -59,29 +59,29 @@ async def handle_image(message: Message):
         await message.answer("Логотипы на изображении не распознаны.")
         return
 
-    # Отметка обнаруженных логотипов на изображении
+    # Формирование и отправка результата
     draw = ImageDraw.Draw(image)
-    for bbox_result in result['bbox_results']:
+    caption = "<b>Распознанные ошибки:</b>\n"
+    for idx, bbox_result in enumerate(result['bbox_results']):
+
+        # Отметка обнаруженных логотипов на изображении
         bbox = bbox_result['bbox']
         if isinstance(bbox, (list, tuple)) and len(bbox) >= 4:
             bbox = tuple(map(int, bbox[:4]))
             draw.rectangle(bbox, outline="red", width=2)
+            
+        # Сохранение временного файла с отмеченными логотипами
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+            image.save(tmp_file, format='PNG')
+            tmp_file_path = tmp_file.name
 
-    # Сохранение временного файла с отмеченными логотипами
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
-        image.save(tmp_file, format='PNG')
-        tmp_file_path = tmp_file.name
-
-    # Формирование и отправка результата
-    caption = "<b>Распознанные ошибки:</b>\n"
-    for idx, bbox_result in enumerate(result['bbox_results']):
+        # Отчет по избражению
         caption += f"<b>Логотип {idx + 1}:</b>\n"
-        caption += f"  - <b>Координаты:</b> {bbox_result['bbox']}\n"
-        caption += f"  - <b>Класс:</b> {'Определить не удалось' if bbox_result['cropped_class'] == 'None' else bbox_result['cropped_class']}\n"
-        caption += f"  - <b>Ошибки:</b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Не найдено'}\n"
-        caption += f"  - <b>Люди на фото:</b> {'Не найдено' if bbox_result['ocr_class'] is None else 'Найдено'}\n"
-        caption += f"  - <b>Цвет:</b> {', '.join(bbox_result['color_class'])}\n\n"
-    caption += f"<b>OCR класс для всего изображения:</b> {result['ocr_class']}"
+        caption += f"  - <b><u>Название класса, полученное при обработке:</u></b> {'Определить не удалось' if bbox_result['cropped_class'] == 'None' else bbox_result['cropped_class']}\n"
+        caption += f"  - <b><u>Ошибки:</u></b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Не найдено'}\n"
+        caption += f"  - <b><u>Класс логотипа, определённый по буквам на логотипе:</u></b> {'Определить не удалось' if bbox_result['ocr_class'] is None else bbox_result['ocr_class']}\n"
+        caption += f"  - <b><u>Класс логотипа, определённый по цвету:</u></b> {', '.join(bbox_result['color_class'])}\n\n"
+    caption += f"<b><u>Общий класс, определённый по всему изображению с помощью OCR:</u></b> {result['ocr_class']}"
 
     await message.answer_photo(FSInputFile(tmp_file_path), caption=caption, parse_mode="HTML")
 
