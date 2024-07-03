@@ -15,6 +15,8 @@ from aiogram.fsm.state import State, StatesGroup
 from PIL import Image, ImageDraw
 import io
 
+import time
+
 # Включение отслеживания распределения памяти
 tracemalloc.start()
 
@@ -29,6 +31,7 @@ from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функц
 
 # Токен вашего бота
 API_TOKEN = '7207561115:AAEMfuR0dRTIfQT3jxLk_yGxskAqMBEBaJQ'
+# API_TOKEN = '6804881734:AAGdFi4mJBnubRLNtfP5ALKCnxqpK_nITRA'
 
 # Инициализация бота, диспетчера и хранилища
 bot = Bot(token=API_TOKEN)
@@ -76,6 +79,8 @@ async def handle_image(message: Message, state: FSMContext):
     # Проверка изображения на ошибки логотипов
     result = checker.check_errors(image)
 
+    start = time.time()
+
     if result['people']:
         await message.answer("Присутствуют люди на фото")
 
@@ -122,6 +127,8 @@ async def handle_image(message: Message, state: FSMContext):
         [f"{i + 1}. {region}" for i, region in enumerate(regions)])
     await message.answer(region_message)
     await state.set_state(main_state.waiting_for_region)
+
+    print(f'ВРЕМЯ ОКОНЧАНИЯ: {time.time() - start}')
 
     print("SUCCESS")
 
