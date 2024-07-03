@@ -52,4 +52,3 @@ if __name__ == '__main__':
     
     prediction = model.predict(image)
 
-    print(f'Результат классификации: {prediction}')
