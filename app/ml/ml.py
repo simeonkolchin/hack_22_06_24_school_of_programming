@@ -47,7 +47,7 @@ class LogoErrorChecker:
         self.people_searcher = SearchPeople(people_path)
         self.crop_classificator = CropClassificator(crop_path)
         self.logo_detector = LogoDetector(logo_path)
-        self.color_checker = ColorChecker()
+        self.color_checker = ColorChecker(threshold=50)
         self.check_classificator = CheckClassificator(check_path)
 
     def check_errors(self, image):
@@ -71,20 +71,13 @@ class LogoErrorChecker:
         - color_class (str): Класс логотипа, определённый по цвету.
         """
 
-        result = {
-            'bbox_results': [],
-            'full_ocr_class': None, # Если не None - надо вывести
-            'people': False # Если не None - надо вывести
-        }
-        
         tmp_file_path = save_image_to_temp_file(image)
 
-        if self.people_searcher.detect(tmp_file_path):
-            result['people'] = 'Найден человек на фото'
-
-        full_ocr_class = self.ocr_model.predict(tmp_file_path)
-        if full_ocr_class is not None:
-            result['full_ocr_class'] = full_ocr_class
+        result = {
+            'bbox_results': [],
+            'full_ocr_class': self.ocr_model.predict(tmp_file_path), # Если не None - надо вывести
+            'people': self.people_searcher.detect(tmp_file_path) # Если не None - надо вывести
+        }
 
         # Используем временный файл для предсказаний
         bboxes, norm_bboxes = self.logo_detector.predict(tmp_file_path)
@@ -119,26 +112,35 @@ class LogoErrorChecker:
             bbox_pred['color_class'] = self.color_checker.run(cropped_image)
 
             # Находим ошибки
-            good_bbox = self.check_classificator.predict(cropped_image)
-            if not good_bbox:
+            good_prob = self.check_classificator.predict(cropped_image)
+            if good_prob < 0:
                 bbox_info['errors'].append('Некорректный логотип (неизвестно почему)')
 
             if self.direction_classificator.predict(cropped_image) < 0 and bbox_pred['cropped_class'] != 'безопасные качественные дороги':
                 bbox_info['errors'].append('Неправильное направление или присутствуют другие искажения логотипа (искажение луча, неправильная форма логотипа и прочее)')
 
             # Добавить проверку на шум, но это нужно тюнить модельку, возможно сделаю
-
-            
             if bbox_pred['ocr_class'] is not None:
-                ocr_class = bbox_pred['ocr_class']
-                
-                if bbox_pred['ocr_class'] in bbox_pred['color_class']:
-                    bbox_info['info'].append(f'Логотип класса: {bbox_pred["ocr_class"]}')
-                # ДОДЕЛАТЬ
+                ocr_class, ocr_dist = bbox_pred['ocr_class']
+                if ocr_class in bbox_pred['color_class']:
+                    bbox_info['info'].append(f'Логотип класса: {ocr_class}')
+                else:
+                    cur_prob = 1 - 2.4 * ocr_dist
+                    bbox_info['info'].append(f"На логотипе с вероятностью {round(cur_prob, 3)} написано {ocr_class}, но цветовая гамма не совпадает")
+            else:
+                bbox_info['info'].append(f'Не удалось прочитать что написано на логотипе')
 
-                
+                if bbox_pred['cropped_class'] is not None:
+                    bbox_info['info'].append(f'Логотип очень похож на логотип класса {bbox_pred["cropped_class"]}')
+                else:
+                    bbox_info['info'].append(f'Не удалось классифицировать класс логотипа')
 
-            bbox_info['info'].append('ОТПРАВЛЯЮ ЧТО ТО')
+            if len(bbox_pred['color_class']):
+                bbox_info['info'].append(f'Цветовая палитра совпадает с логотипами категорий: {", ".join(bbox_pred["color_class"])}')
+
+            if len(bboxes) == 1 and result['full_ocr_class'] is not None and bbox_pred['ocr_class'] is None:
+                full_ocr_class, full_ocr_dist = result['full_ocr_class']
+                bbox_info['info'].append(f"Рассмотрев все фото, с вероятностью {round(full_ocr_dist, 3)} на логотипе написано {full_ocr_class}")
 
             result['bbox_results'].append(bbox_info)
 

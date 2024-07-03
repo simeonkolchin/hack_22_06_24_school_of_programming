@@ -44,7 +44,7 @@ class CheckClassificator:
         image = self.transform(image).unsqueeze(0).numpy()
         outputs = self.onnx_session.run([self.output_name], {self.input_name: image})
         output = outputs[0][0][0]
-        return output > 0
+        return output
 
 if __name__ == '__main__':
     model = CheckClassificator(f'/Users/dmitrykutsenko/Desktop/hack_22_06_24_school_of_programming/app/ml/weights/classification_check_good.onnx')
