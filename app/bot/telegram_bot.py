@@ -76,6 +76,9 @@ async def handle_image(message: Message, state: FSMContext):
     # Проверка изображения на ошибки логотипов
     result = checker.check_errors(image)
 
+    if result['people']:
+        await message.answer("Присутствуют люди на фото")
+
     if not result['bbox_results']:
         await message.answer("Логотипы на изображении не распознаны.")
         return
@@ -98,13 +101,12 @@ async def handle_image(message: Message, state: FSMContext):
 
         # Отчет по изображению
         caption += f"<b>Логотип {idx + 1}:</b>\n"
-        caption += f"  - <b><u>Название класса, полученное при обработке:</u></b> {'Определить не удалось' if bbox_result['cropped_class'] == 'None' else bbox_result['cropped_class']}\n"
-        caption += f"  - <b><u>Ошибки:</u></b> {', '.join(bbox_result['errors']) if bbox_result['errors'] else 'Не найдено'}\n"
-        if bbox_result['errors']:
-            error = 1
-        caption += f"  - <b><u>Класс логотипа, определённый по буквам на логотипе:</u></b> {'Определить не удалось' if bbox_result['ocr_class'] is None else bbox_result['ocr_class']}\n"
-        caption += f"  - <b><u>Класс логотипа, определённый по цвету:</u></b> {', '.join(bbox_result['color_class'])}\n\n"
-    caption += f"<b><u>Общий класс, определённый по всему изображению с помощью OCR:</u></b> {result['ocr_class']}"
+
+        for error in bbox_result['errors']:
+            caption += error + "\n"
+
+        for info in bbox_result['info']:
+            caption += info + "\n"
 
     await message.answer_photo(FSInputFile(tmp_file_path), caption=caption, parse_mode="HTML")
 
@@ -120,6 +122,8 @@ async def handle_image(message: Message, state: FSMContext):
         [f"{i + 1}. {region}" for i, region in enumerate(regions)])
     await message.answer(region_message)
     await state.set_state(main_state.waiting_for_region)
+
+    print("SUCCESS")
 
 
 @router.message(main_state.waiting_for_region)

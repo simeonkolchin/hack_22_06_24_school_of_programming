@@ -130,4 +130,4 @@ class OCR:
         if best_distance <= threshold:
             return best_class
         else:
-            return 'Определить не удалось'
+            return None
