@@ -128,6 +128,6 @@ class OCR:
         print(f"ТЕКСТ РАСПОЗНАН: {recognized_text}")
 
         if best_distance <= threshold:
-            return best_class
+            return [best_class, best_distance]
         else:
             return None
