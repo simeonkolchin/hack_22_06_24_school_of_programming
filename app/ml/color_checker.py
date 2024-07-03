@@ -24,10 +24,10 @@ class ColorChecker:
             'демография': [[65, 145, 235], [75,165,200], [60, 125, 160]],
             'культура': [[120, 110, 170], [100, 110, 200], [80,75,120], [40,30,85]],
             'цифровая экономика': [[95, 135, 193], [110, 150, 205], [95,140,205]],
-            'юезопасные дороги': [[210, 170, 85], [220, 200, 90]],
+            'безопасные качественные дороги': [[210, 170, 85], [220, 200, 90]],
             'экоология': [[150, 200, 130], [100, 185, 140], [75, 110, 85], [145, 180, 125], [80, 120, 60]],
             'образование': [[125, 185, 220], [85, 190, 190], [75,115,175], [75,120,195], [110,155,180], [55,100,150]],
-            'здравохранение': [[200,45,75], [85,45,50], [175,55,65], [160,110,140], [180,50,50], [140,60,85]],
+            'здравохранение': [[200,45,75], [85,45,50], [175,55,65], [160,110,140], [180,50,50], [140,60,85], [200, 90, 90], [180,100,110]],
             'международная кооперация и экспорт': [[45,55,70], [75,80,95]],
             'наука и университеты': [[60,135,185], [90,165,145], [80,165,120], [95,145,200], [80,140,205], [85,130,185]],
             'туризм': [[65,125,115], [85,170,155]],
@@ -49,19 +49,24 @@ class ColorChecker:
         height, width, _ = image.shape
         image_flat = image.reshape(-1, 3)
         counts = Counter()
+        used_pixels = np.zeros((height * width,), dtype=bool)
 
         for color_name, color_values in self.colors.items():
             for color in color_values:
                 color_array = np.array(color)
                 diff = np.abs(image_flat - color_array)
                 mask = np.sum(diff, axis=-1) <= self.threshold
-                counts[color_name] += np.count_nonzero(mask)
+
+                new_pixels = mask & ~used_pixels
+                counts[color_name] += np.count_nonzero(new_pixels)
+                used_pixels = used_pixels | new_pixels
 
         for key in counts.keys():
             counts[key] /= height * width
             counts[key] *= 100
             counts[key] = round(counts[key], 2)
+            counts[key] = min(counts[key], 100)
 
-        top_5 = sorted(counts.items(), key=lambda item: item[1], reverse=True)[:5]
+        good_cats = [key for key, value in counts.items() if value >= 10]
 
-        return top_5
+        return good_cats

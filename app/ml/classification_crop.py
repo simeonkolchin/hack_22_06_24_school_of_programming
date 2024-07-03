@@ -14,13 +14,13 @@ class CropClassificator:
         ])
 
         self.class_names = [
-            'culture',
-            'demographics',
-            'dorogi',
-            'ecology',
-            'education',
-            'healthcare',
-            'urban_env'
+            'культура',
+            'демография',
+            'безопасные качественные дороги',
+            'экология',
+            'образование',
+            'здравоохранение',
+            'жильё и городская среда'
         ]
     
     def predict(self, image):
@@ -31,7 +31,7 @@ class CropClassificator:
         outputs = outputs[0]
 
         if np.max(outputs) < 4:
-            return 'None'
+            return None
 
         predicted = np.argmax(outputs, axis=1)
         predicted_class = self.class_names[predicted.item()]
