@@ -71,14 +71,20 @@ class LogoErrorChecker:
         - color_class (str): Класс логотипа, определённый по цвету.
         """
 
-        bboxes_info = []
         result = {
             'bbox_results': [],
             'full_ocr_class': None, # Если не None - надо вывести
-            'people': None # Если не None - надо вывести
+            'people': False # Если не None - надо вывести
         }
         
         tmp_file_path = save_image_to_temp_file(image)
+
+        if self.people_searcher.detect(tmp_file_path):
+            result['people'] = 'Найден человек на фото'
+
+        full_ocr_class = self.ocr_model.predict(tmp_file_path)
+        if full_ocr_class is not None:
+            result['full_ocr_class'] = full_ocr_class
 
         # Используем временный файл для предсказаний
         bboxes, norm_bboxes = self.logo_detector.predict(tmp_file_path)
@@ -128,17 +134,12 @@ class LogoErrorChecker:
                 
                 if bbox_pred['ocr_class'] in bbox_pred['color_class']:
                     bbox_info['info'].append(f'Логотип класса: {bbox_pred["ocr_class"]}')
-            
+                # ДОДЕЛАТЬ
+
+                
 
             bbox_info['info'].append('ОТПРАВЛЯЮ ЧТО ТО')
 
             result['bbox_results'].append(bbox_info)
-
-        if self.people_searcher.detect(tmp_file_path):
-            result['people'] = 'Найден человек на фото'
-
-        full_ocr_class = self.ocr_model.predict(tmp_file_path)
-        if full_ocr_class is not None:
-            result['full_ocr_class'] = full_ocr_class
 
         return result
