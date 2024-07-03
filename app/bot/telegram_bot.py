@@ -28,8 +28,7 @@ from app.bot.sql_lite import add_photo  # Импорт функции добав
 from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функции загрузки фото на Яндекс.Диск
 
 # Токен вашего бота
-# API_TOKEN = '7207561115:AAEMfuR0dRTIfQT3jxLk_yGxskAqMBEBaJQ'
-API_TOKEN = '6804881734:AAGdFi4mJBnubRLNtfP5ALKCnxqpK_nITRA'
+API_TOKEN = '7207561115:AAEMfuR0dRTIfQT3jxLk_yGxskAqMBEBaJQ'
 
 # Инициализация бота, диспетчера и хранилища
 bot = Bot(token=API_TOKEN)
