@@ -1,18 +1,19 @@
-import requests
+import yadisk
 import os
 
-YANDEX_DISK_TOKEN = 'y0_AgAAAAA_HVueAAwL5gAAAAEJTfaWAAA4Yozwwv1OPr-DuTuqqpLD9lvQQw'
+YANDEX_DISK_TOKEN = 'y0_AgAAAAA_HVueAAwMEQAAAAEJUr26AADq10NchJxAGYiWumEZJHC1TixtRw'
+
+# Инициализация Yandex Disk клиента
+y = yadisk.YaDisk(token=YANDEX_DISK_TOKEN)
 
 def upload_to_yandex_disk(file_path, national_project, region, object_type, address):
-    headers = {
-        'Authorization': f'OAuth {YANDEX_DISK_TOKEN}'
-    }
+    # Определение пути на Яндекс.Диске
     disk_path = f"/branding_photos/{national_project}/{region}/{object_type}/{address}/{os.path.basename(file_path)}"
-    upload_url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
-    params = {'path': disk_path, 'overwrite': 'true'}
-    response = requests.get(upload_url, headers=headers, params=params)
-    upload_link = response.json().get('href')
+    
+    # Загрузка файла на Яндекс.Диск
     with open(file_path, 'rb') as f:
-        requests.put(upload_link, files={'file': f})
-
+        y.upload(f, disk_path, overwrite=True)
+    
+    # Возвращаем URL загруженного файла
     return f"https://disk.yandex.com/client/disk{disk_path}"
+
