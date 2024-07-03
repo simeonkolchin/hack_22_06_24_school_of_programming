@@ -28,7 +28,6 @@ from app.bot.sql_lite import add_photo  # Импорт функции добав
 from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функции загрузки фото на Яндекс.Диск
 
 # Токен вашего бота
-# API_TOKEN = '***TELEGRAM_TOKEN_REMOVED***'
 API_TOKEN = '***TELEGRAM_TOKEN_REMOVED***'
 
 # Инициализация бота, диспетчера и хранилища
