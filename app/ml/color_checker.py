@@ -68,6 +68,6 @@ class ColorChecker:
             counts[key] = min(counts[key], 100)
             print(f'{key} - {counts[key]}')
 
-        good_cats = [key for key, value in counts.items() if value >= 10]
-
+        good_cats = [(key, value) for key, value in counts.items() if value >= 10]
+        good_cats.sort(key=lambda k: k[1], reverse=True)
         return good_cats

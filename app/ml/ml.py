@@ -8,6 +8,8 @@ from app.ml.logo_detector import LogoDetector
 from app.ml.color_checker import ColorChecker
 from PIL import Image
 
+import time
+
 
 # Чет лень это в utils пихать, но код будет выглядеть более красиво так что решил сделать)
 # (больше для себя, а то в ml.py много всего:) )
@@ -51,6 +53,8 @@ class LogoErrorChecker:
         self.check_classificator = CheckClassificator(check_path)
 
     def check_errors(self, image):
+
+        start = time.time()
         
         """
         Проверяет изображение на наличие ошибок, связанных с логотипами.
@@ -83,16 +87,20 @@ class LogoErrorChecker:
         bboxes, norm_bboxes = self.logo_detector.predict(tmp_file_path)
 
         for bbox, norm_bboxes in zip(bboxes, norm_bboxes):
+            cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+            tmp_small_file_path = save_image_to_temp_file(cropped_image)
+    
             bbox_pred = {
-                'cropped_class': None, # Что распознала нейронка
-                'ocr_class': None, # Что распознала OCR система
-                'color_class': [] # Возможные классы
+                'cropped_class': self.crop_classificator.predict(cropped_image), # Что распознала нейронка
+                'ocr_class': self.ocr_model.predict(tmp_small_file_path, threshold=0.34), # Что распознала OCR система
+                'color_class': self.color_checker.run(cropped_image) # Возможные классы
             }
 
             bbox_info = {
                 'bbox': bbox[:4], # координаты логотипа
                 'errors': [], # строки об ошибках
                 'info': [], # строки с инфой в целом, какой класс и тд
+                'class': '-'
             }
 
             bbox_width = norm_bboxes[2] - norm_bboxes[0]
@@ -102,14 +110,6 @@ class LogoErrorChecker:
             print(bbox_area)
             if bbox_area < 0.01:
                 bbox_info['errors'].append('Логотип занимает меньше 1% фотографии, скорее всего он находится слишком далеко / он слишком маленький')
-
-            cropped_image = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-
-            tmp_small_file_path = save_image_to_temp_file(cropped_image)
-
-            bbox_pred['ocr_class'] = self.ocr_model.predict(tmp_small_file_path, threshold=0.34)
-            bbox_pred['cropped_class'] = self.crop_classificator.predict(cropped_image)
-            bbox_pred['color_class'] = self.color_checker.run(cropped_image)
 
             # Находим ошибки
             good_prob = self.check_classificator.predict(cropped_image)
@@ -122,26 +122,32 @@ class LogoErrorChecker:
             # Добавить проверку на шум, но это нужно тюнить модельку, возможно сделаю
             if bbox_pred['ocr_class'] is not None:
                 ocr_class, ocr_dist = bbox_pred['ocr_class']
-                if ocr_class in bbox_pred['color_class']:
+                if ocr_class in [x[0] for x in bbox_pred['color_class']]:
                     bbox_info['info'].append(f'Логотип класса: {ocr_class}')
                 else:
                     cur_prob = 1 - 2.4 * ocr_dist
                     bbox_info['info'].append(f"На логотипе с вероятностью {round(cur_prob, 3)} написано {ocr_class}, но цветовая гамма не совпадает")
+                bbox_info['class'] = ocr_class
             else:
                 bbox_info['info'].append(f'Не удалось прочитать что написано на логотипе')
 
                 if bbox_pred['cropped_class'] is not None:
                     bbox_info['info'].append(f'Логотип очень похож на логотип класса {bbox_pred["cropped_class"]}')
+                    bbox_info['class'] = bbox_pred['cropped_class']
                 else:
                     bbox_info['info'].append(f'Не удалось классифицировать класс логотипа')
 
             if len(bbox_pred['color_class']):
-                bbox_info['info'].append(f'Цветовая палитра совпадает с логотипами категорий: {", ".join(bbox_pred["color_class"])}')
+                bbox_info['info'].append(f'Цветовая палитра совпадает с логотипами категорий: {", ".join([x[0] for x in bbox_pred["color_class"]])}')
+                bbox_info['class'] = bbox_pred['color_class'][0][0]
 
             if len(bboxes) == 1 and result['full_ocr_class'] is not None and bbox_pred['ocr_class'] is None:
                 full_ocr_class, full_ocr_dist = result['full_ocr_class']
                 bbox_info['info'].append(f"Рассмотрев все фото, с вероятностью {round(full_ocr_dist, 3)} на логотипе написано {full_ocr_class}")
+                bbox_info['class'] = full_ocr_class
 
             result['bbox_results'].append(bbox_info)
+
+        print(f'ВРЕМЯ: {time.time() - start}')
 
         return result
