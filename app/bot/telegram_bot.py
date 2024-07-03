@@ -24,7 +24,7 @@ project_root = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
 sys.path.append(project_root)
 
 from app.ml.ml import LogoErrorChecker
-from app.bot.sql_lite import add_photo  # Импорт функции добавления фото в базу данных
+from app.bot.sql_lite import create_db, add_photo  # Импорт функции добавления фото в базу данных
 from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функции загрузки фото на Яндекс.Диск
 
 # Токен вашего бота
@@ -38,6 +38,8 @@ router = Router()
 
 # Инициализация объекта для проверки ошибок логотипа
 checker = LogoErrorChecker()
+
+create_db()
 
 # Загрузка данных из Excel
 def load_data(file_path):
@@ -184,24 +186,23 @@ async def waiting_for_address(message: Message, state: FSMContext):
         tmp_file_path = user_data['tmp_file_path']
         result = user_data['result']
 
-        national_project = result['ocr_class']
-        detected_errors = ", ".join(result['errors'])
-        color_class = ", ".join(result['bbox_results'][0]['color_class'])
-        ocr_class = result['ocr_class']
-        await message.answer(f"{tmp_file_path} \n\n{result} \n\n{national_project} \n\n{detected_errors} \n\n{color_class} \n\n{ocr_class}")
+        national_project = user_data['result']
+        print(national_project)
+        return
+        errors = ', '.join(result['bbox_results'][0]['errors'])
+        info = ', '.join(result['bbox_results'][0]['info'])
 
+        print(errors, info)
+        
         # Генерация уникального идентификатора
         global_id = str(uuid.uuid4())
 
         # Сохранение фото на Яндекс.Диск
-        await message.answer(f"1")
         photo_url = upload_to_yandex_disk(tmp_file_path, national_project, user_data['region'], user_data['object_type'], user_data['address'])
-        await message.answer(f"2")
 
         # Сохранение информации в базу данных
-        await message.answer(f"3")
         city, street, house = user_data['address'].split(', ', 2)
-        add_photo(global_id, national_project, user_data['object_type'], user_data['region'], city, street, house, photo_url, detected_errors, ocr_class, color_class)
+        add_photo(global_id, national_project, user_data['object_type'], user_data['region'], city, street, house, photo_url, errors, info)
 
         await message.answer("Фото успешно загружено и информация сохранена.")
         
@@ -212,6 +213,7 @@ async def waiting_for_address(message: Message, state: FSMContext):
         await state.finish()
     else:
         await message.answer("Некорректный выбор. Пожалуйста, выберите правильный номер адреса объекта.")
+
 
 
 async def run_bot():
