@@ -28,8 +28,8 @@ def add_photo(global_id, national_project, object_type, region, city, street, ho
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO photos (global_id, national_project, object_type, region, city, street, house, photo_url, errors, info)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO photos(global_id, national_project, object_type, region, city, street, house, photo_url, errors, info)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (global_id, national_project, object_type, region, city, street, house, photo_url, errors, info))
     conn.commit()
     conn.close()

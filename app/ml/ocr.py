@@ -125,8 +125,6 @@ class OCR:
         recognized_text = self.recognize_text(image_path)
         best_class, best_distance = self.classify_text(recognized_text)
 
-        print(f"ТЕКСТ РАСПОЗНАН: {recognized_text}")
-
         if best_distance <= threshold:
             return [best_class, best_distance]
         else:
