@@ -26,7 +26,7 @@ project_root = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
 sys.path.append(project_root)
 
 from app.ml.ml import LogoErrorChecker
-from app.bot.sql_lite import add_photo  # Импорт функции добавления фото в базу данных
+from app.bot.sql_lite import create_db, add_photo  # Импорт функции добавления фото в базу данных
 from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функции загрузки фото на Яндекс.Диск
 
 # Токен вашего бота
@@ -41,6 +41,8 @@ router = Router()
 
 # Инициализация объекта для проверки ошибок логотипа
 checker = LogoErrorChecker()
+
+create_db()
 
 # Загрузка данных из Excel
 def load_data(file_path):
@@ -123,14 +125,10 @@ async def handle_image(message: Message, state: FSMContext):
     await state.update_data(result=result)
     await state.update_data(photo_bytes=photo_bytes)
 
-    region_message = "Выберите субъект РФ:\n" + "\n".join(
+    region_message = "Фотография была корректна определена. Чтобы ее сохранить, выберите субъект РФ (кроме субъекта с типом «nan»):\n" + "\n".join(
         [f"{i + 1}. {region}" for i, region in enumerate(regions)])
     await message.answer(region_message)
     await state.set_state(main_state.waiting_for_region)
-
-    print(f'ВРЕМЯ ОКОНЧАНИЯ: {time.time() - start}')
-
-    print("SUCCESS")
 
 
 @router.message(main_state.waiting_for_region)
@@ -138,12 +136,12 @@ async def waiting_for_region(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_data = await state.get_data()
     region_index = int(message.text.strip()) - 1
-    if 0 <= region_index < len(regions):
+    if 1 <= region_index < len(regions):
         region = regions[region_index]
         user_data['region'] = region
         await state.update_data(region=region)
         
-        object_type_message = "Выберите тип объекта:\n" + "\n".join(
+        object_type_message = "Выберите тип объекта (кроме объекта с типом «nan»):\n" + "\n".join(
             [f"{i + 1}. {object_type}" for i, object_type in enumerate(object_types)])
         await message.answer(object_type_message)
         await state.set_state(main_state.waiting_for_object_type)
@@ -155,7 +153,7 @@ async def waiting_for_region(message: Message, state: FSMContext):
 async def waiting_for_object_type(message: Message, state: FSMContext):
     user_data = await state.get_data()
     object_type_index = int(message.text.strip()) - 1
-    if 0 <= object_type_index < len(object_types):
+    if 1 <= object_type_index < len(object_types):
         object_type = object_types[object_type_index]
         user_data['object_type'] = object_type
         await state.update_data(object_type=object_type)
@@ -164,7 +162,7 @@ async def waiting_for_object_type(message: Message, state: FSMContext):
             f"{row['Населенный пункт']}, {row['Улица']}, {row['Дом']}"
             for _, row in df[(df['Регион'] == user_data['region']) & (df['Тип объекта'] == user_data['object_type'])].iterrows()
         ]
-        address_message = "Выберите адрес объекта:\n" + "\n".join(
+        address_message = "Выберите адрес объекта (кроме объекта с типом «nan»):\n" + "\n".join(
             [f"{i + 1}. {addr}" for i, addr in enumerate(filtered_addresses)])
         await message.answer(address_message)
         await state.set_state(main_state.waiting_for_address)
@@ -178,45 +176,46 @@ async def waiting_for_address(message: Message, state: FSMContext):
     address_index = int(message.text.strip()) - 1
     
     filtered_addresses = [
-        f"{row['Населенный пункт']}, {row['Улица']}, {row['Дом']}"
+        {
+            'Населенный пункт': row['Населенный пункт'],
+            'Улица': row['Улица'],
+            'Дом': row['Дом'],
+            'Global ID': row['Global ID']
+        }
         for _, row in df[(df['Регион'] == user_data['region']) & (df['Тип объекта'] == user_data['object_type'])].iterrows()
     ]
     
     if 0 <= address_index < len(filtered_addresses):
-        address = filtered_addresses[address_index]
+        address_data = filtered_addresses[address_index]
+        address = f"{address_data['Населенный пункт']}, {address_data['Улица']}, {address_data['Дом']}"
         user_data['address'] = address
         await state.update_data(address=address)
+        
+        global_id = str(int(address_data['Global ID']))
+        await state.update_data(global_id=global_id)
 
         # Получение данных из промежуточного состояния
         tmp_file_path = user_data['tmp_file_path']
         result = user_data['result']
 
-        national_project = result['ocr_class']
-        detected_errors = ", ".join(result['errors'])
-        color_class = ", ".join(result['bbox_results'][0]['color_class'])
-        ocr_class = result['ocr_class']
-        await message.answer(f"{tmp_file_path} \n\n{result} \n\n{national_project} \n\n{detected_errors} \n\n{color_class} \n\n{ocr_class}")
-
-        # Генерация уникального идентификатора
-        global_id = str(uuid.uuid4())
-
+        national_project = result['bbox_results'][0]['class']
+        errors = ', '.join(result['bbox_results'][0]['errors'])
+        info = ', '.join(result['bbox_results'][0]['info'])
+        
         # Сохранение фото на Яндекс.Диск
-        await message.answer(f"1")
         photo_url = upload_to_yandex_disk(tmp_file_path, national_project, user_data['region'], user_data['object_type'], user_data['address'])
-        await message.answer(f"2")
 
         # Сохранение информации в базу данных
-        await message.answer(f"3")
         city, street, house = user_data['address'].split(', ', 2)
-        add_photo(global_id, national_project, user_data['object_type'], user_data['region'], city, street, house, photo_url, detected_errors, ocr_class, color_class)
+        add_photo(global_id, national_project, user_data['object_type'], user_data['region'], city, street, house, photo_url, errors, info)
 
-        await message.answer("Фото успешно загружено и информация сохранена.")
+        await message.answer(f"Фото успешно загружено и информация сохранена. \n\nGlobal ID: {global_id} \n\nНациональный проект: {national_project} \nТип объекта: {user_data['object_type']} \n\nРегион: {user_data['region']} \nГород: {city} \nУлица: {street} \nДом: {house} \n\nСсылка на Яндекс.Диск: <a href='{photo_url}'>НАЖМИ, ЧТОБЫ ПОСМОТРЕТЬ</a> \n\nОшибки: {errors if errors else 'Нет'} \n\nОбщая информация: {info}", parse_mode="HTML")
         
         # Удаление временного файла
         os.remove(tmp_file_path)
         
         # Очистка состояния
-        await state.finish()
+        await state.clear()
     else:
         await message.answer("Некорректный выбор. Пожалуйста, выберите правильный номер адреса объекта.")
 
