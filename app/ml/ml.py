@@ -8,8 +8,6 @@ from app.ml.logo_detector import LogoDetector
 from app.ml.color_checker import ColorChecker
 from PIL import Image
 
-import time
-
 
 # Чет лень это в utils пихать, но код будет выглядеть более красиво так что решил сделать)
 # (больше для себя, а то в ml.py много всего:) )
@@ -53,8 +51,6 @@ class LogoErrorChecker:
         self.check_classificator = CheckClassificator(check_path)
 
     def check_errors(self, image):
-
-        start = time.time()
         
         """
         Проверяет изображение на наличие ошибок, связанных с логотипами.

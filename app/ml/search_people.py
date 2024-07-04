@@ -20,7 +20,7 @@ class SearchPeople:
         Возвращает:
             bool: True, если люди обнаружены, иначе False.
         """
-        results = self.model(image_path, conf=0.1, verbose=False)
+        results = self.model(image_path, conf=0.3, verbose=False)
         if 0 in results[0].boxes.data[:, 5]:
             return True
         else:
