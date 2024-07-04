@@ -93,7 +93,7 @@ async def handle_image(message: Message, state: FSMContext):
     # Формирование и отправка результата
     error = 0
     draw = ImageDraw.Draw(image)
-    caption = "<b>Распознанные ошибки:</b>\n"
+    caption = ""
     for idx, bbox_result in enumerate(result['bbox_results']):
         # Отметка обнаруженных логотипов на изображении
         bbox = bbox_result['bbox']

@@ -47,7 +47,7 @@ class LogoErrorChecker:
         self.people_searcher = SearchPeople(people_path)
         self.crop_classificator = CropClassificator(crop_path)
         self.logo_detector = LogoDetector(logo_path)
-        self.color_checker = ColorChecker(threshold=50)
+        self.color_checker = ColorChecker(threshold=60)
         self.check_classificator = CheckClassificator(check_path)
 
     def check_errors(self, image):
@@ -103,7 +103,7 @@ class LogoErrorChecker:
             bbox_height = norm_bboxes[3] - norm_bboxes[1]
             bbox_area = bbox_width * bbox_height
 
-            if bbox_area < 0.01:
+            if bbox_area < 0.007:
                 bbox_info['errors'].append('Логотип занимает меньше 1% фотографии, скорее всего он находится слишком далеко / он слишком маленький')
 
             # Находим ошибки
