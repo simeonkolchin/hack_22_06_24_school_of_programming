@@ -126,7 +126,7 @@ class LogoErrorChecker:
                     bbox_info['info'].append(f'Логотип класса: {ocr_class}')
                 else:
                     cur_prob = 1 - 2.4 * ocr_dist
-                    bbox_info['info'].append(f"На логотипе с вероятностью {round(cur_prob, 3)} написано {ocr_class}, но цветовая гамма не совпадает")
+                    bbox_info['info'].append(f"На логотипе с вероятностью {round(cur_prob * 100, 2)} написано {ocr_class}, но цветовая гамма не совпадает")
                 bbox_info['class'] = ocr_class
             else:
                 bbox_info['info'].append(f'Не удалось прочитать что написано на логотипе')
@@ -143,7 +143,8 @@ class LogoErrorChecker:
 
             if len(bboxes) == 1 and result['full_ocr_class'] is not None and bbox_pred['ocr_class'] is None:
                 full_ocr_class, full_ocr_dist = result['full_ocr_class']
-                bbox_info['info'].append(f"Рассмотрев все фото, с вероятностью {round(full_ocr_dist, 3)} на логотипе написано {full_ocr_class}")
+                full_ocr_prob = 1 - 2.4 * full_ocr_dist
+                bbox_info['info'].append(f"Рассмотрев все фото, с вероятностью {round(full_ocr_prob * 100)} на логотипе написано {full_ocr_class}")
                 bbox_info['class'] = full_ocr_class
 
             result['bbox_results'].append(bbox_info)
