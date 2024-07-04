@@ -107,7 +107,6 @@ class LogoErrorChecker:
             bbox_height = norm_bboxes[3] - norm_bboxes[1]
             bbox_area = bbox_width * bbox_height
 
-            print(bbox_area)
             if bbox_area < 0.01:
                 bbox_info['errors'].append('Логотип занимает меньше 1% фотографии, скорее всего он находится слишком далеко / он слишком маленький')
 
@@ -149,6 +148,5 @@ class LogoErrorChecker:
 
             result['bbox_results'].append(bbox_info)
 
-        print(f'ВРЕМЯ: {time.time() - start}')
 
         return result

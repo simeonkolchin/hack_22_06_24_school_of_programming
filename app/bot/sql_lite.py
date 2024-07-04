@@ -7,7 +7,7 @@ def create_db():
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS photos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY,
             global_id TEXT,
             national_project TEXT,
             object_type TEXT,
@@ -16,21 +16,20 @@ def create_db():
             street TEXT,
             house TEXT,
             photo_url TEXT,
-            detected_errors TEXT,
-            ocr_class TEXT,
-            color_class TEXT
+            errors TEXT,
+            info TEXT
         )
     ''')
     conn.commit()
     conn.close()
 
 
-def add_photo(global_id, national_project, object_type, region, city, street, house, photo_url, detected_errors, ocr_class, color_class):
+def add_photo(global_id, national_project, object_type, region, city, street, house, photo_url, errors, info):
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO photos (global_id, national_project, object_type, region, city, street, house, photo_url, detected_errors, ocr_class, color_class)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (global_id, national_project, object_type, region, city, street, house, photo_url, detected_errors, ocr_class, color_class))
+        INSERT INTO photos(global_id, national_project, object_type, region, city, street, house, photo_url, errors, info)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (global_id, national_project, object_type, region, city, street, house, photo_url, errors, info))
     conn.commit()
     conn.close()
