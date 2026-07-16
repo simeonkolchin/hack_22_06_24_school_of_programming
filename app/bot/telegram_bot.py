@@ -29,9 +29,10 @@ from app.ml.ml import LogoErrorChecker
 from app.bot.sql_lite import create_db, add_photo  # Импорт функции добавления фото в базу данных
 from app.bot.yandex_disk import upload_to_yandex_disk  # Импорт функции загрузки фото на Яндекс.Диск
 
-# Токен вашего бота
-API_TOKEN = '***TELEGRAM_TOKEN_REMOVED***'
-# API_TOKEN = '***TELEGRAM_TOKEN_REMOVED***'
+# Telegram bot token — read from the environment (see .env.example).
+API_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+if not API_TOKEN:
+    raise RuntimeError("TELEGRAM_BOT_TOKEN is not set. Copy .env.example to .env and fill it in.")
 
 # Инициализация бота, диспетчера и хранилища
 bot = Bot(token=API_TOKEN)

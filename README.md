@@ -1,246 +1,205 @@
-# Logo Error Checker Project
+<div align="center">
 
-Проект Logo Error Checker представляет собой систему для обнаружения и классификации ошибок в брендировании национальных проектов на изображениях. Система использует различные модели машинного обучения для анализа изображений, распознавания текста, поиска людей и проверки цвета.
+# 🎯 Logo Error Checker
 
-## Идея проекта
+**A multi-model computer-vision pipeline that verifies the branding of Russian "National Projects" on photos — detects logos, classifies the project, reads the slogan, checks colour and orientation, and flags people in frame — served over a Telegram bot, a REST API and a Streamlit UI.**
 
-Цель проекта - создать инструмент, который поможет автоматически проверять изображения на соответствие требованиям брендирования национальных проектов. Это позволит существенно сократить время, затрачиваемое на ручную проверку изображений, и повысить точность проверки.
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![aiogram](https://img.shields.io/badge/aiogram-3.x-2CA5E0?logo=telegram&logoColor=white)](https://docs.aiogram.dev/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![YOLO](https://img.shields.io/badge/YOLO-ultralytics-00FFFF)](https://docs.ultralytics.com/)
+[![ONNX](https://img.shields.io/badge/ONNX-Runtime-005CED?logo=onnx&logoColor=white)](https://onnxruntime.ai/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Структура проекта
+[Quick Start](#-quick-start) · [How It Works](#️-how-it-works) · [Models](#-the-models) · [API](#-rest-api) · [Weights](#-model-weights) · [Docs](#-documentation)
 
-### `app/`
+</div>
 
-Директория `app` содержит весь исходный код для запуска и работы проекта, включая API, Telegram-бота, машинное обучение и пользовательский интерфейс.
+---
 
-- `api/`
+## 🚀 What is Logo Error Checker?
 
-  - `__init__.py`
-  - `api.py`: Реализация FastAPI для взаимодействия с внешними приложениями.
+Russia's federal **National Projects** (`Национальные проекты`) come with a strict visual-branding guideline — a specific "ray" logo, per-project colour palettes, an approved font, correct logo orientation, and a rule that no people appear in official object photos. Verifying that thousands of submitted photos follow these rules by hand is slow.
 
-- `bot/`
+**Logo Error Checker** automates that review. You send a photo; the system detects every logo, figures out which National Project it belongs to (by reading the text, by colour, and by a trained classifier), and returns a per-logo report of what's right and what's wrong — wrong orientation, mismatched colours, a logo that's too small/far, or people in the frame.
 
-  - `__init__.py`
-  - `telegram_bot.py`: Код для Telegram-бота, использующего aiogram для обработки сообщений и взаимодействия с пользователями.
+Built for the *"Branding of National Projects"* case from the **Economy Department of the Tyumen Region** during a hackathon.
 
-- `ml/`
-
-  - `__init__.py`
-  - `weights/`: Директория, содержащая веса моделей.
-  - `classification_crop.py`: Модель классификации изображений.
-  - `classification_direction.py`: Модель классификации направлений.
-  - `color_checker.py`: Модель проверки цвета.
-  - `logo_detector.py`: Модель обнаружения логотипов.
-  - `ml.py`: Основной файл для интеграции всех моделей и проверок.
-  - `ocr.py`: Модель распознавания текста.
-  - `search_people.py`: Модель поиска людей на изображениях.
-
-- `ui/`
-
-  - `__init__.py`
-  - `layout.py`: Код для Streamlit-приложения, позволяющего загружать изображения и получать результаты классификации.
-  - `logo.png`: Логотип для отображения в пользовательском интерфейсе.
-
-- `utils/`
-
-  - `__init__.py`
-  - `utils.py`: Вспомогательные функции и утилиты для проекта.
-
-- `main.py`: Основной файл для запуска Streamlit-приложения, Telegram-бота и API.
-
-### `data/`
-
-Директория `data` содержит все фотографии, используемые для обучения и тестирования моделей.
-
-#### Структура
-
-- `classification_crop/`: Изображения для обучения и тестирования модели классификации изображений.
-- `classification_direction/`: Изображения для обучения и тестирования модели классификации направлений.
-- `direction/`: Дополнительные изображения для классификации направлений.
-- `detection_all/`: Изображения для обнаружения всех объектов.
-- `original/`: Оригинальные изображения для различных задач классификации и обнаружения.
-
-### `train/`
-
-Директория `train` содержит Jupyter ноутбуки, используемые для подбора весов моделей и их обучения.
-
-#### Структура
-
-- `classification_crop/`
-  - `train.ipynb`: Ноутбук для обучения модели классификации изображений.
-- `classification_direction/`
-  - `1.ipynb`: Ноутбук для обучения модели классификации направлений.
-- `ocr/`
-  - `ocr.ipynb`: Ноутбук для обучения модели распознавания текста.
-- `znak_detection/`
-  - `yolo_detection.ipynb`: Ноутбук для обучения модели обнаружения логотипов.
-
-## Установка
-
-1. Клонируйте репозиторий:
+## ⚡ Quick Start
 
 ```bash
-git clone https://github.com/simeonkolchin/hack_22_06_24_school_of_programming
+git clone https://github.com/simeonkolchin/logo-error-checker.git
 cd logo-error-checker
-```
 
-2. Установите необходимые библиотеки:
-
-```bash
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+
+cp .env.example .env          # add your Telegram + Yandex Disk tokens
 ```
 
-## Запуск проекта
+> ⚠️ **Model weights are not in this repo** — the `app/ml/weights/` directory ships empty. See [Model weights](#-model-weights) before running anything that loads a model.
 
-Для запуска проекта выполните одну/все команду(ы) из корневой директории:
-
-Запуск телеграм-бота:
+Run any of the three interfaces from the repo root:
 
 ```bash
-set PYTHONPATH=%cd%
-python app\bot\telegram_bot.py
-```
+# REST API (FastAPI + Uvicorn)
+uvicorn app.api.api:app --host 0.0.0.0 --port 8000
 
-Запуск приложения streamlit:
-
-```bash
+# Streamlit web UI
 streamlit run app/ui/layout.py
+
+# Telegram bot (requires TELEGRAM_BOT_TOKEN in the environment)
+PYTHONPATH=. python app/bot/telegram_bot.py
 ```
 
-Запуск API:
+Or with Docker (serves the API):
 
 ```bash
-uvicorn app.api:app --reload
+docker build -t logo-error-checker .
+docker run --rm -p 8000:8000 --env-file .env \
+  -v "$PWD/app/ml/weights:/app/app/ml/weights" logo-error-checker
 ```
 
-# Использование API
+## 🏗️ How It Works
 
-## Базовый URL
+```mermaid
+flowchart TD
+    IMG[Input photo] --> DET[YOLO logo detector]
+    IMG --> PPL[YOLO people detector]
+    IMG --> FOCR[EasyOCR — whole image]
 
-```arduino
-http://<your_server_ip>:8000
+    DET -->|bounding boxes| LOOP{for each logo}
+    LOOP --> CROP[Crop classifier<br/>ONNX · 7 projects]
+    LOOP --> OCR[EasyOCR + Levenshtein<br/>15 project slogans]
+    LOOP --> COLOR[Colour checker<br/>palette match]
+    LOOP --> GOOD[Quality classifier<br/>ONNX · valid logo?]
+    LOOP --> DIR[Direction classifier<br/>ONNX · ray flipped?]
+
+    CROP --> AGG[Aggregate per-logo verdict]
+    OCR --> AGG
+    COLOR --> AGG
+    GOOD --> AGG
+    DIR --> AGG
+    PPL --> AGG
+    FOCR --> AGG
+
+    AGG --> OUT[Report: class · errors · info]
 ```
 
-## Эндпоинты
+Orchestration lives in [`app/ml/ml.py`](app/ml/ml.py) (`LogoErrorChecker.check_errors`). It detects logos, then for each crop runs the classifiers and combines their outputs into a verdict: the project class (cross-checked between OCR text, colour and the crop classifier), plus human-readable errors and info strings.
 
-### Проверка ошибок на изображении
+## 🧠 The Models
+
+| Model | File | Backend | Role |
+|---|---|---|---|
+| Logo detector | `logo_detector.py` | YOLO (`.pt`) + NMS | Find logo bounding boxes |
+| People search | `search_people.py` | YOLO (`.pt`) | Flag any person in the frame |
+| Crop classifier | `classification_crop.py` | ONNX | Classify a cropped logo into 7 projects |
+| Direction classifier | `classification_direction.py` | ONNX | Detect a flipped/distorted "ray" |
+| Quality classifier | `classification_check_good.py` | ONNX | Is this a valid logo at all? |
+| OCR + text match | `ocr.py` | EasyOCR + Levenshtein | Read the slogan, match to 15 project names |
+| Colour checker | `color_checker.py` | NumPy palette match | Match pixels to per-project colours |
+
+The detection rules combined in `ml.py` include: logo occupying < ~1 % of the photo (too far/small), invalid logo, flipped ray / distortion, and OCR-vs-colour disagreement.
+
+## 🔌 Interfaces
+
+| Interface | Entry point | Notes |
+|---|---|---|
+| REST API | `app/api/api.py` (`app.api.api:app`) | `POST /check_errors/` with an image file |
+| Telegram bot | `app/bot/telegram_bot.py` | aiogram FSM; stores results in SQLite + uploads to Yandex Disk |
+| Streamlit UI | `app/ui/layout.py` | Upload an image, see annotated result |
+
+## 📡 REST API
+
+**`POST /check_errors/`** — multipart form field `file` (an image).
 
 ```bash
-POST /check_errors/
+curl -X POST "http://localhost:8000/check_errors/" -F "file=@example.jpg"
 ```
 
-Описание: Загружает изображение и возвращает список обнаруженных ошибок.
+```python
+import requests
 
-Параметры запроса:
-
-- file: Файл изображения (обязательный параметр).
-
-## Пример запроса:
-
-```http
-POST /check_errors/ HTTP/1.1
-Host: <your_server_ip>:8000
-Content-Type: multipart/form-data
-Content-Length: <length>
-Content-Disposition: form-data; name="file"; filename="example.jpg"
+with open("example.jpg", "rb") as f:
+    r = requests.post("http://localhost:8000/check_errors/", files={"file": f})
+print(r.json())
 ```
 
-## Пример ответа:
+Response shape:
 
 ```json
 {
-  "errors": [],
-  "ocr_class": "some_class",
+  "full_ocr_class": ["образование", 0.12],
+  "people": false,
   "bbox_results": [
     {
       "bbox": [36, 2, 313, 246],
-      "cropped_class": "some_class",
-      "errors": ["Неправильное направление"],
-      "ocr_class": "some_class",
-      "color_class": "some_color"
+      "errors": ["Неправильное направление или искажение логотипа"],
+      "info": ["Логотип класса: образование", "Цветовая палитра совпадает с ..."],
+      "class": "образование"
     }
   ]
 }
 ```
 
-# Примеры использования
+## 📦 Model weights
 
-## Python
+The five trained weight files are **not committed** (`app/ml/weights/` contains only a `.gitkeep`). You must place them there before running:
 
-```python
-import requests
-
-url = "http://<your_server_ip>:8000/check_errors/"
-file_path = "path_to_your_image.jpg"
-
-with open(file_path, "rb") as image_file:
-    files = {"file": image_file}
-    response = requests.post(url, files=files)
-
-if response.status_code == 200:
-    print("Errors detected:", response.json().get("errors"))
-else:
-    print("Failed to check errors:", response.status_code)
+```
+app/ml/weights/
+├── logo_detector.pt                 # YOLO logo detector
+├── search_people.pt                 # YOLO people detector
+├── classification_crop.onnx         # crop → project classifier
+├── classification_direction.onnx    # ray-direction classifier
+└── classification_check_good.onnx   # logo validity classifier
 ```
 
-## cURL
+How to obtain them:
 
-```cURL
-curl -X POST "http://<your_server_ip>:8000/check_errors/" -F "file=@path_to_your_image.jpg"
-```
+- **Train them yourself** — the notebooks in [`train/`](train/) reproduce every model (`yolo_train.ipynb` for detection, `train/classification/*.ipynb` for the ONNX classifiers, `ocr.ipynb` for the OCR pipeline). Export the classifiers to ONNX and YOLO models to `.pt`.
+- **Request the pre-trained weights** from the maintainer (see [Contact](#-contact)).
 
-## JavaScript (Fetch API)
+File names must match exactly, or override the paths via the `LogoErrorChecker(...)` constructor arguments.
 
-```javascript
-async function checkErrors(imageFile) {
-  const url = 'http://<your_server_ip>:8000/check_errors/';
-  const formData = new FormData();
-  formData.append('file', imageFile);
+## ⚙️ Configuration
 
-  const response = await fetch(url, {
-    method: 'POST',
-    body: formData,
-  });
+All secrets are read from the environment (see [`.env.example`](.env.example)).
 
-  if (response.ok) {
-    const data = await response.json();
-    console.log('Errors detected:', data.errors);
-  } else {
-    console.error('Failed to check errors:', response.status);
-  }
-}
+| Variable | Used by | Description |
+|---|---|---|
+| `TELEGRAM_BOT_TOKEN` | Telegram bot | Bot token from [@BotFather](https://t.me/BotFather) |
+| `YANDEX_DISK_TOKEN` | Telegram bot | Yandex Disk OAuth token for archiving accepted photos |
 
-// Пример использования
-const imageFile = document.querySelector('input[type="file"]').files[0];
-checkErrors(imageFile);
-```
+## 📚 Documentation
 
-## Контакты
+- [Getting Started](docs/getting-started.md)
+- [Architecture](docs/architecture.md)
 
-Если у вас возникли вопросы или предложения, вы можете связаться с нами по электронной почте [simeonkolchin@gmail.com].
+## 🛡️ Security
 
-# Кейсо держатель и наименование кейса
+Secrets are read only from the environment; `.env` is gitignored and `.env.example` ships placeholders. See [SECURITY.md](SECURITY.md).
 
-## Кейсодержатель: Департамент экономики Тюменской области
+> ⚠️ **History note:** earlier commits of this repository contained a hard-coded Telegram bot token and a Yandex Disk OAuth token. The current tree reads both from the environment, but the old values remain in git history and **must be rotated**.
 
-## Наименование кейса: Брендирование национальных проектов
+## 🗺️ Roadmap
 
-## Описание проблемы (актуальность решения)
+- [ ] Publish downloadable pre-trained weights
+- [ ] Font (Roboto) compliance check
+- [ ] English localisation of report strings
+- [ ] Batch endpoint for multiple photos
+- [ ] GPU inference toggle for EasyOCR / YOLO
 
-На данный момент правильность брендирования национальных проектов выполняется людьми, что занимает много времени. Требуется создать нейронную сеть, которая бы распознавала брендирование на фотографии и относила ее к одному из национальных проектов.
+## 🧑‍💻 Contributing
 
-## Требования к решению
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Форма: Нейронная сеть (телеграмм-бот)
+## 📬 Contact
 
-## Требования к продукту:
+Questions or the case brief: [simeonkolchin@gmail.com](mailto:simeonkolchin@gmail.com).
 
-- Пользователь загружает фотографии брендированных объектов или мероприятий.
-- Нейросеть должна распознать, к какому из национальных проектов относится каждая из фотографий.
-- Брендирование на фотографии должно быть проверено нейронной сетью на соответствие требованиям к брендированию данного национального проекта:
-- должен использоваться шрифт Roboto, начертание Bold – для заголовков, Medium – для заголовков и подзаголовков, Regular – для основного текста, Light – для поясняющего текста.
-- Единый логотип национальных проектов – луч, который символизирует позитивные изменения «здесь и сейчас». Логотип выполнен в стиле конструктивизма. Единственно возможный вид луча. Обратное отображение луча для брендирования объектов и результатов национальных проектов запрещено.
-- Каждый из национальных проектов имеет фирменные цвета. Приложенные на фотографии ниже (доступны по ссылке ниже).
-- фотографии забрендированных объектов и результатов национальных проектов предоставляются в формате растровых изображений (вертикальные и горизонтальные) в формате .jpeg;
-- В кадре должны отсутствовать люди.
-- Фотографии, на которых отсутствует брендирование или нарушены обозначенные выше правила, должны быть помечены как неподходящие.
-- По каждой из фотографий должно быть отправлено сообщение с информацией о типе национального проекта, а также о выполнении требований к фотографии пользователю, подгрузившему фото. В случае если фотография неподходящая, пользователю направляется сообщение о причине (какое из требований нарушено) или просто уведомление о некорректности.
+## 📄 License
+
+MIT © [Simeon Kolchin](https://github.com/simeonkolchin)

@@ -1,0 +1,7 @@
+# Minimal lint config. Catches undefined names and syntax errors while
+# tolerating the notebook-derived style of this hackathon codebase.
+line-length = 120
+extend-exclude = ["train", "*.ipynb"]
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]

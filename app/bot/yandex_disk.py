@@ -1,7 +1,8 @@
 import yadisk
 import os
 
-YANDEX_DISK_TOKEN = '***YANDEX_TOKEN_REMOVED***'
+# Yandex Disk OAuth token — read from the environment (see .env.example).
+YANDEX_DISK_TOKEN = os.environ.get("YANDEX_DISK_TOKEN", "")
 
 # Инициализация Yandex Disk клиента
 y = yadisk.YaDisk(token=YANDEX_DISK_TOKEN)

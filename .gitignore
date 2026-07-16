@@ -1,21 +1,31 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.iml
+
+# Model weights (obtain separately — see README "Model weights")
+*.pt
+*.pth
+*.onnx
+app/ml/weights/*.pt
+app/ml/weights/*.onnx
+
+# Datasets / media artifacts (not tracked)
 data/original/*/
 *.cache
 *.jpg
 *.jpeg
-*.txt
 *.webp
-*DS_Store
-*.pdf
-*.pt
-*.pyc
-*.pth
 *.xml
-*.iml
-app/ml/weights/mobilenet_v2.onnx
-train/classification_direction/mobilenet_v2.onnx
-train/classification_crop/classification_crop.onnx
-app/ml/weights/classification_crop.onnx
-*.onnx
-*.png
-*__pycache__*
 *runs*
+
+# OS
+*DS_Store
+
+# Local runtime DB
+branding_photos.db
