@@ -182,8 +182,9 @@ app/ml/weights/
 
 How to obtain them:
 
+- **Download from the [release](https://github.com/simeonkolchin/logo-error-checker/releases/tag/weights-v1)** — `classification_check_good.onnx` is published there.
 - **Train them yourself** — the notebooks in [`train/`](train/) reproduce every model (`yolo_train.ipynb` for detection, `train/classification/*.ipynb` for the ONNX classifiers, `ocr.ipynb` for the OCR pipeline). Export the classifiers to ONNX and YOLO models to `.pt`.
-- **Request the pre-trained weights** from the maintainer (see [Contact](#-contact)).
+- **Request the remaining pre-trained weights** from the maintainer (see [Contact](#-contact)).
 
 File names must match exactly, or override the paths via the `LogoErrorChecker(...)` constructor arguments.
 
