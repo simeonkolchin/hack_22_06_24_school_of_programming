@@ -11,8 +11,15 @@
 [![YOLO](https://img.shields.io/badge/YOLO-ultralytics-00FFFF)](https://docs.ultralytics.com/)
 [![ONNX](https://img.shields.io/badge/ONNX-Runtime-005CED?logo=onnx&logoColor=white)](https://onnxruntime.ai/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![1st place](https://img.shields.io/badge/🏆_1st_place-Tyumen_Hackathon_2024-FFD700)](https://contenta.info/press_releases/788976)
 
 [Quick Start](#-quick-start) · [How It Works](#️-how-it-works) · [Models](#-the-models) · [API](#-rest-api) · [Weights](#-model-weights) · [Docs](#-documentation)
+
+<br/>
+
+<img src="docs/demo.gif" width="300" alt="Logo Checker — Telegram bot demo"/>
+
+<sub>The Telegram bot in action — pick an object, send a photo, get a per-logo verdict.</sub>
 
 </div>
 
@@ -24,7 +31,23 @@ Russia's federal **National Projects** (`Национальные проекты
 
 **Logo Error Checker** automates that review. You send a photo; the system detects every logo, figures out which National Project it belongs to (by reading the text, by colour, and by a trained classifier), and returns a per-logo report of what's right and what's wrong — wrong orientation, mismatched colours, a logo that's too small/far, or people in the frame.
 
-Built for the *"Branding of National Projects"* case from the **Economy Department of the Tyumen Region** during a hackathon.
+> 🏆 **1st place** at the **Tyumen Region School-of-Programming Hackathon** (June 2024 · 15 teams from 7 regions) — built for the *"Branding of National Projects"* case of the **«Цифровая экономика»** national programme. → [Press release](https://contenta.info/press_releases/788976)
+
+## 🎬 In action
+
+Send a photo of a national-project object; the bot returns a structured, **per-logo verdict** — detected project class, technique errors, OCR of the slogan and a colour-palette match — and archives accepted photos to Yandex Disk.
+
+<img src="docs/report-example.jpg" width="300" align="right" alt="Sample bot report"/>
+
+**Example verdicts the system produces:**
+
+- **Logo 1** → class `culture`, no errors; palette matches *international cooperation* 26.9%, *culture* 25.7%
+- **Logo 2** → ⚠️ *wrong orientation / ray distortion*; too small to OCR; palette weakly matches *urban environment*, *healthcare*
+- *“Couldn't read the logo text; strongly resembles the **ecology** class; palette matches ecology, science & universities.”*
+
+Every verdict is fully **interpretable** — each error maps to an explicit geometry / colour / OCR check, not a black-box score.
+
+<br clear="all"/>
 
 ## ⚡ Quick Start
 
@@ -181,8 +204,6 @@ All secrets are read from the environment (see [`.env.example`](.env.example)).
 ## 🛡️ Security
 
 Secrets are read only from the environment; `.env` is gitignored and `.env.example` ships placeholders. See [SECURITY.md](SECURITY.md).
-
-> ⚠️ **History note:** earlier commits of this repository contained a hard-coded Telegram bot token and a Yandex Disk OAuth token. The current tree reads both from the environment, but the old values remain in git history and **must be rotated**.
 
 ## 🗺️ Roadmap
 
