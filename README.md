@@ -31,7 +31,15 @@ Russia's federal **National Projects** (`Национальные проекты
 
 **Logo Error Checker** automates that review. You send a photo; the system detects every logo, figures out which National Project it belongs to (by reading the text, by colour, and by a trained classifier), and returns a per-logo report of what's right and what's wrong — wrong orientation, mismatched colours, a logo that's too small/far, or people in the frame.
 
-> 🏆 **1st place** at the **Tyumen Region School-of-Programming Hackathon** (June 2024 · 15 teams from 7 regions) — built for the *"Branding of National Projects"* case of the **«Цифровая экономика»** national programme. → [Press release](https://contenta.info/press_releases/788976)
+> 🏆 **1st place** at the **Tyumen Region School-of-Programming Hackathon** (June 2024 · 15 teams from 7 regions) — built for the *"Branding of National Projects"* case of the **«Цифровая экономика»** national programme.
+
+<div align="center">
+<a href="https://contenta.info/press_releases/788976">
+<img src="docs/article.jpg" width="72%" alt="Press coverage of the hackathon results"/>
+</a>
+<br/>
+<sub>📰 Press coverage of the results — <a href="https://contenta.info/press_releases/788976">contenta.info</a></sub>
+</div>
 
 ## 🎬 In action
 
