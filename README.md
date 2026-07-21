@@ -230,6 +230,13 @@ Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Questions or the case brief: [simeonkolchin@gmail.com](mailto:simeonkolchin@gmail.com).
 
+## 👥 Authors
+
+Built by team **"Тачки"** — winners of the Tyumen Region School-of-Programming Hackathon:
+
+- [**Simeon Kolchin**](https://github.com/simeonkolchin)
+- [**Dmitriy Kutsenko**](https://github.com/kdimon15)
+
 ## 📄 License
 
-MIT © [Simeon Kolchin](https://github.com/simeonkolchin)
+MIT © [Simeon Kolchin](https://github.com/simeonkolchin) & [Dmitriy Kutsenko](https://github.com/kdimon15)
